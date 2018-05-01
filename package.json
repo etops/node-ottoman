@@ -9,7 +9,7 @@
   ],
   "main": "./lib/ottoman",
   "license": "Apache2",
-  "name": "ottoman",
+  "name": "@nectar/ottoman",
   "scripts": {
     "test": "eslint ./lib && istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js"
   },
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/couchbaselabs/node-ottoman.git"
+    "url": "http://github.com/etops/node-ottoman.git"
   },
-  "version": "1.0.4"
+  "version": "1.0.6"
 }
