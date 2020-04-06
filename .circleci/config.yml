@@ -1,0 +1,111 @@
+version: 2.1
+jobs:
+  build:
+    working_directory: ~/etops/node-ottoman
+    parallelism: 1
+    docker:
+      - image: cimg/node:10.19.0
+    steps:
+      - checkout
+
+      - run:
+          name: Configure NPM repository access
+          command: sed -i -e "s|\${GITHUB_PERSONAL_ACCESS_TOKEN}|$GITHUB_PERSONAL_ACCESS_TOKEN|g" npmrc-env && mv npmrc-env .npmrc
+      - restore_cache:
+          key: v1-dep-{{ .Branch }}-{{ checksum "package.json" }}
+      - run:
+          name: Run npm ci
+          command: npm ci
+      - save_cache:
+          key: v1-dep-{{ .Branch }}-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - etops
+
+  test:
+    working_directory: ~/etops/node-ottoman
+    parallelism: 1
+    docker:
+      - image: cimg/node:10.19.0
+    environment:
+      IMAGE_NAME: couchbase
+      COUCHBASE_HOST: localhost
+      COUCHBASE_PORT: "8091"
+      CNCSTR: couchbase://localhost # Ottoman tests look for this
+    steps:
+      # Restore workspace data from previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Check if version of the app was increased in packages.json
+          command: |
+            echo VERSION $VERSION
+            if [ -z "$(npm info $(npm ls --depth=-1 2>/dev/null | head -1 | cut -f 1 -d " ") 2>/dev/null)" ] ; then
+              echo "Version number is fine";
+            else
+              echo "Please update version number in package.json!"
+              exit 1;
+            fi
+      - run:
+          name: Run linter
+          command: eslint .
+
+      - run:
+          name: Start couchbase
+          command: docker run -d --name couchtest -p 8090-8099:8090-8099 -p 9110:9110 -p 11210:11210 -p 18091:18091 -p 18092:18092 -t mdavidallen/couchbase:latest
+
+      - run:
+          name: Wait for couchbase to start
+          command: |
+            sleep 10
+            curl --retry 20 --retry-delay 10 -v http://$COUCHBASE_HOST:$COUCHBASE_PORT/index.html -C -
+
+    override:
+      - docker ps
+      - node -e 'console.log(process.env.CNCSTR)'
+      - npm test
+      - docker logs --tail=200 couchtest
+
+  deploy:
+    working_directory: ~/etops/node-ottoman
+    parallelism: 1
+    docker:
+      - image: cimg/node:10.19.0
+    steps:
+      # Restore workspace data from previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Configure git and ssh
+          command: |
+            git config --global user.email "platform-dev@nectarfinancial.com"
+            git config --global user.name "devetops"
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+            echo 'github.com,192.30.253.112 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==' >> ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
+      - deploy:
+          name: NPM publishing
+          command: |
+            if [ -z "$(npm info $(npm ls --depth=-1 2>/dev/null | head -1 | cut -f 1 -d " ") 2>/dev/null)" ] ; then
+              npm publish
+            fi
+
+workflows:
+  version: 2
+  build_test_deploy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
