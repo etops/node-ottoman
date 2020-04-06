@@ -9,18 +9,18 @@
   ],
   "main": "./lib/ottoman",
   "license": "Apache2",
-  "name": "@nectar/ottoman",
+  "name": "@etops/ottoman",
   "scripts": {
     "test": "eslint ./lib && istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js"
   },
   "dependencies": {
     "jsonpath": "~0.2.2",
-    "lodash": "^4.15.0",
+    "lodash": "^4.17.15",
     "lodash-deep": "^2.0.0",
     "uuid": "~2.0.1"
   },
   "optionalDependencies": {
-    "couchbase": "^2.4.0"
+    "couchbase": "^2.6.11"
   },
   "devDependencies": {
     "chai": "~3.3.0",
@@ -34,5 +34,5 @@
     "type": "git",
     "url": "http://github.com/etops/node-ottoman.git"
   },
-  "version": "1.0.6"
+  "version": "1.0.7"
 }
