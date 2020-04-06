@@ -64,11 +64,17 @@ jobs:
             sleep 10
             curl --retry 20 --retry-delay 10 -v http://$COUCHBASE_HOST:$COUCHBASE_PORT/index.html -C -
 
-    override:
-      - docker ps
-      - node -e 'console.log(process.env.CNCSTR)'
-      - npm test
-      - docker logs --tail=200 couchtest
+      - run:
+          name: Log CNCSTR
+          command: node -e 'console.log(process.env.CNCSTR)'
+
+      - run:
+          name: Run npm test
+          command: node -e 'console.log(process.env.CNCSTR)'
+
+      - run:
+          name: Print couchbase logs
+          command: docker logs --tail=200 couchtest
 
   deploy:
     working_directory: ~/etops/node-ottoman
