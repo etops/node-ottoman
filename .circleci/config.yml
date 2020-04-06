@@ -29,8 +29,8 @@ jobs:
   test:
     working_directory: ~/etops/node-ottoman
     parallelism: 1
-    docker:
-      - image: cimg/node:10.19.0
+    machine:
+      image: ubuntu-1604:201903-01
     environment:
       IMAGE_NAME: couchbase
       COUCHBASE_HOST: localhost
@@ -40,6 +40,14 @@ jobs:
       # Restore workspace data from previous job
       - attach_workspace:
           at: ~/
+      - run:
+          name: Install node and npm
+          command: |
+            echo "source /opt/circleci/.nvm/nvm.sh" >> $BASH_ENV
+            source /opt/circleci/.nvm/nvm.sh
+            nvm install v10.19.0
+            nvm alias default 10.19.0
+
       - run:
           name: Check if version of the app was increased in packages.json
           command: |
