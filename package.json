@@ -14,6 +14,9 @@
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js",
     "lint": "eslint ./lib"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "dependencies": {
     "jsonpath": "~0.2.2",
     "lodash": "^4.17.15",
