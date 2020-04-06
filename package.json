@@ -9,19 +9,22 @@
   ],
   "main": "./lib/ottoman",
   "license": "Apache2",
-  "name": "ottoman",
+  "name": "@etops/ottoman",
   "scripts": {
-    "test": "eslint ./lib && istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js",
+    "lint": "eslint ./lib"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
-    "bluebird": "^3.4.1",
     "jsonpath": "~0.2.2",
-    "lodash": "^4.15.0",
+    "lodash": "^4.17.15",
     "lodash-deep": "^2.0.0",
     "uuid": "~2.0.1"
   },
   "optionalDependencies": {
-    "couchbase": "2.3.0"
+    "couchbase": "^2.6.11"
   },
   "devDependencies": {
     "chai": "~3.3.0",
@@ -33,7 +36,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/couchbaselabs/node-ottoman.git"
+    "url": "http://github.com/etops/node-ottoman.git"
   },
-  "version": "1.0.5"
+  "version": "1.0.7"
 }
