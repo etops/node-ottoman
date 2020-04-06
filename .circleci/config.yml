@@ -52,7 +52,7 @@ jobs:
             fi
       - run:
           name: Run linter
-          command: eslint .
+          command: npm run lint
 
       - run:
           name: Start couchbase

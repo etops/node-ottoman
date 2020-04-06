@@ -11,7 +11,8 @@
   "license": "Apache2",
   "name": "@etops/ottoman",
   "scripts": {
-    "test": "eslint ./lib && istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js",
+    "lint": "eslint ./lib"
   },
   "dependencies": {
     "jsonpath": "~0.2.2",
