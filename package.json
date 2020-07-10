@@ -18,25 +18,25 @@
     "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
-    "jsonpath": "~0.2.2",
+    "jsonpath": "^1.0.2",
     "lodash": "^4.17.15",
     "lodash-deep": "^2.0.0",
-    "uuid": "~2.0.1"
+    "uuid": "~3.3.2"
   },
   "optionalDependencies": {
     "couchbase": "^2.6.11"
   },
   "devDependencies": {
-    "chai": "~3.3.0",
-    "eslint": "^2.9.0",
+    "chai": "^4.2.0",
+    "eslint": "^5.7.0",
     "ink-docstrap": "git+https://github.com/brett19/docstrap.git#master",
-    "istanbul": "~0.3.21",
+    "istanbul": "~0.4.5",
     "jsdoc": "~3.3.0-alpha9",
-    "mocha": "~2.3.3"
+    "mocha": "~5.2.0"
   },
   "repository": {
     "type": "git",
     "url": "http://github.com/etops/node-ottoman.git"
   },
-  "version": "1.0.7"
+  "version": "1.0.8"
 }
