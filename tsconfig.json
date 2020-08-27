@@ -1,0 +1,13 @@
+{
+  "include": [
+    "./lib"
+  ],
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "allowJs": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "types"
+  }
+}
