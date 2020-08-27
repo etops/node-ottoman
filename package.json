@@ -7,12 +7,14 @@
     "json",
     "document"
   ],
+  "types": "./types/index.d.ts",
   "main": "./lib/ottoman",
   "license": "Apache2",
   "name": "@etops/ottoman",
   "scripts": {
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js",
-    "lint": "eslint ./lib"
+    "lint": "eslint ./lib",
+    "regen-types": "tsc"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
@@ -32,11 +34,12 @@
     "ink-docstrap": "git+https://github.com/brett19/docstrap.git#master",
     "istanbul": "~0.4.5",
     "jsdoc": "~3.3.0-alpha9",
-    "mocha": "~5.2.0"
+    "mocha": "~5.2.0",
+    "typescript": "4.0.2"
   },
   "repository": {
     "type": "git",
     "url": "http://github.com/etops/node-ottoman.git"
   },
-  "version": "1.0.8"
+  "version": "1.0.9"
 }
