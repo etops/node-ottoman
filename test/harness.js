@@ -42,6 +42,7 @@ if (process.env.CNCSTR) {
     }
   });
 
+  this.setTimeout(30000);
   ottoman.bucket = bucket;
 } else {
   ottoman.store = new ottoman.MockStoreAdapter();
