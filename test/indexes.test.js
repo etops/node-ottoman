@@ -387,12 +387,12 @@ describe('Model Indexes', function () {
     let y = new TestMdl({when: someWhen});
 
     x.save(function (err) {
-      setTimeout(2000);
+      setTimeout(function(){},2000);
       assert.isNull(err);
 
       y.save(function (err) {
         assert.isNull(err);
-        setTimeout(2000);
+        setTimeout(function(){},2000);
         TestMdl.find({}, function (err, resp) {
           assert.isNull(err);
           console.log(resp, 'resp');
