@@ -1,17 +1,17 @@
 'use strict';
 
-var assert = require('chai').assert;
-var H = require('./harness');
-var ottoman = H.lib;
+let assert = require('chai').assert;
+let H = require('./harness');
+let ottoman = H.lib;
 
 describe('Model Indexes', function () {
   // Add timeout to permit CI tests to take some time.
   this.timeout(10000);
 
   function _indexTest(indexType, done) {
-    var modelId = H.uniqueId('model');
+    let modelId = H.uniqueId('model');
 
-    var TestMdl = ottoman.model(modelId, {
+    let TestMdl = ottoman.model(modelId, {
       name: 'string',
       company: 'string'
     },
@@ -33,10 +33,10 @@ describe('Model Indexes', function () {
     ottoman.ensureIndices(function (err) {
       assert.isNull(err);
 
-      var x = new TestMdl();
+      let x = new TestMdl();
       x.name = 'Frank';
       x.company = 'Couchbase';
-      var y = new TestMdl();
+      let y = new TestMdl();
       y.name = 'George';
       y.company = 'Google';
 
@@ -53,7 +53,7 @@ describe('Model Indexes', function () {
               assert.isNull(err);
               assert.isArray(res);
               assert.propertyVal(res, 'length', 1);
-              var obj = res[0];
+              let obj = res[0];
               assert.equal(obj._id, x._id);
               assert.equal(obj.name, 'Frank');
               assert.equal(obj.company, 'Couchbase');
@@ -82,12 +82,12 @@ describe('Model Indexes', function () {
 
   if (ottoman.store instanceof ottoman.CbStoreAdapter) {
     it('should create index on _type when indexing for n1ql', function (done) {
-      var couchbase = require('couchbase');
+      let couchbase = require('couchbase');
 
       _indexTest.call(this, 'n1ql', function () {
         // At this point, all GSI indexes should have been made, meaning there
         // should be one on type.
-        var verifyQ = 'SELECT * FROM system:indexes WHERE ' +
+        let verifyQ = 'SELECT * FROM system:indexes WHERE ' +
           'keyspace_id=\'' + ottoman.bucket._name + '\' AND ' +
           '(ARRAY_CONTAINS(index_key, \'`_type`\') OR ' +
           'ARRAY_CONTAINS(index_key, \'_type\'))';
@@ -105,9 +105,9 @@ describe('Model Indexes', function () {
   }
 
   it('should fail to have two identical refdoc keys', function (done) {
-    var modelId = H.uniqueId('model');
+    let modelId = H.uniqueId('model');
 
-    var TestMdl = ottoman.model(modelId, {
+    let TestMdl = ottoman.model(modelId, {
       name: 'string',
       company: 'string'
     },
@@ -127,10 +127,10 @@ describe('Model Indexes', function () {
     ottoman.ensureIndices(function (err) {
       assert.isNull(err);
 
-      var x = new TestMdl();
+      let x = new TestMdl();
       x.name = 'Frank';
       x.company = 'Couchbase';
-      var y = new TestMdl();
+      let y = new TestMdl();
       y.name = 'George';
       y.company = 'Couchbase';
 
@@ -147,9 +147,9 @@ describe('Model Indexes', function () {
 
   it('should allow two paths with the same name when undefined',
     function (done) {
-      var modelId = H.uniqueId('model');
+      let modelId = H.uniqueId('model');
 
-      var TestMdl = ottoman.model(modelId, {
+      let TestMdl = ottoman.model(modelId, {
         name: 'string',
         company: 'string'
       },
@@ -165,9 +165,9 @@ describe('Model Indexes', function () {
       ottoman.ensureIndices(function (err) {
         assert.isNull(err);
 
-        var x = new TestMdl();
+        let x = new TestMdl();
         x.name = 'Frank';
-        var y = new TestMdl();
+        let y = new TestMdl();
         y.company = 'Frank';
 
         x.save(function (err) {
@@ -183,9 +183,9 @@ describe('Model Indexes', function () {
 
 
   it('should be ok to have two refdocs both undefined', function (done) {
-    var modelId = H.uniqueId('model');
+    let modelId = H.uniqueId('model');
 
-    var TestMdl = ottoman.model(modelId, {
+    let TestMdl = ottoman.model(modelId, {
       name: 'string',
       company: 'string'
     },
@@ -205,9 +205,9 @@ describe('Model Indexes', function () {
     ottoman.ensureIndices(function (err) {
       assert.isNull(err);
 
-      var x = new TestMdl();
+      let x = new TestMdl();
       x.name = 'Frank';
-      var y = new TestMdl();
+      let y = new TestMdl();
       y.name = 'George';
 
       x.save(function (err) {
@@ -223,8 +223,8 @@ describe('Model Indexes', function () {
 
 
   it('should succeed with a previously changed refdoc key', function (done) {
-    var modelId = H.uniqueId('model');
-    var TestMdl = ottoman.model(modelId, {
+    let modelId = H.uniqueId('model');
+    let TestMdl = ottoman.model(modelId, {
       name: 'string',
       company: 'string'
     },
@@ -244,10 +244,10 @@ describe('Model Indexes', function () {
     ottoman.ensureIndices(function (err) {
       assert.isNull(err);
 
-      var x = new TestMdl();
+      let x = new TestMdl();
       x.name = 'Frank';
       x.company = 'Couchbase';
-      var y = new TestMdl();
+      let y = new TestMdl();
       y.name = 'Frank';
       y.company = 'Google';
 
@@ -275,8 +275,8 @@ describe('Model Indexes', function () {
   });
 
   it('should fail for a missing refdoc value', function (done) {
-    var modelId = H.uniqueId('model');
-    var TestMdl = ottoman.model(modelId, {
+    let modelId = H.uniqueId('model');
+    let TestMdl = ottoman.model(modelId, {
       name: 'string'
     },
     {
@@ -291,7 +291,7 @@ describe('Model Indexes', function () {
     ottoman.ensureIndices(function (err) {
       assert.isNull(err);
 
-      var x = new TestMdl();
+      let x = new TestMdl();
       x.name = 'Frank';
 
       x.save(function (err) {
@@ -309,10 +309,10 @@ describe('Model Indexes', function () {
   });
 
   it('should fail to ensureIndex with an invalid index type', function (done) {
-    var ottoX = new ottoman.Ottoman();
+    let ottoX = new ottoman.Ottoman();
     ottoX.store = ottoman.store;
 
-    var modelId = H.uniqueId('model');
+    let modelId = H.uniqueId('model');
     ottoX.model(modelId, {
       name: 'string'
     },
@@ -332,11 +332,11 @@ describe('Model Indexes', function () {
   });
 
   it('should fail to search with an invalid index type', function (done) {
-    var ottoX = new ottoman.Ottoman();
+    let ottoX = new ottoman.Ottoman();
     ottoX.store = ottoman.store;
 
-    var modelId = H.uniqueId('model');
-    var TestMdl = ottoX.model(modelId, {
+    let modelId = H.uniqueId('model');
+    let TestMdl = ottoX.model(modelId, {
       name: 'string'
     },
     {
@@ -356,13 +356,13 @@ describe('Model Indexes', function () {
   });
 
   it('should not find mismatching dates', function (done) {
-    var modelId = H.uniqueId('model');
-    var TestMdl = ottoman.model(modelId, {
+    let modelId = H.uniqueId('model');
+    let TestMdl = ottoman.model(modelId, {
       when: { type: 'Date', default: Date.now }
     });
 
-    var x = new TestMdl();
-    var otherDate = new Date('2013-11-11T22:25:42.000Z');
+    let x = new TestMdl();
+    let otherDate = new Date('2013-11-11T22:25:42.000Z');
 
     x.save(function (err) {
       assert.isNull(err);
@@ -377,26 +377,28 @@ describe('Model Indexes', function () {
   });
 
   it('should only find a matching date', function (done) {
-    var modelId = H.uniqueId('model');
-    var TestMdl = ottoman.model(modelId, {
+    let modelId = H.uniqueId('model');
+    let TestMdl = ottoman.model(modelId, {
       when: { type: 'string', default: new Date(Date.now()).toISOString()  }
     });
 
-    var someWhen = '2013-11-11T22:25:42.000Z';
-    var x = new TestMdl();
-    var y = new TestMdl({when: someWhen});
+    let someWhen = '2013-11-11T22:25:42.000Z';
+    let x = new TestMdl();
+    let y = new TestMdl({when: someWhen});
 
     x.save(function (err) {
+      setTimeout(2000);
       assert.isNull(err);
 
       y.save(function (err) {
         assert.isNull(err);
-
+        setTimeout(2000);
         TestMdl.find({}, function (err, resp) {
           assert.isNull(err);
           console.log(resp, 'resp');
           // assert.lengthOf(resp, 2);
           TestMdl.find({when: someWhen}, function (err, res) {
+            console.log(res, 'res');
             assert.isNull(err);
 
             assert.lengthOf(res, 1);
