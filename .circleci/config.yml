@@ -78,7 +78,7 @@ jobs:
 
       - run:
           name: Run npm test
-          command: node -e 'console.log(process.env.CNCSTR)'
+          command: Run npm test
 
       - run:
           name: Print couchbase logs
