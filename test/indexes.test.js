@@ -379,10 +379,10 @@ describe('Model Indexes', function () {
   it('should only find a matching date', function (done) {
     var modelId = H.uniqueId('model');
     var TestMdl = ottoman.model(modelId, {
-      when: { type: 'Date', default: Date.now }
+      when: { type: 'string', default: new Date(Date.now()).toISOString()  }
     });
 
-    var someWhen = new Date('2013-11-11T22:25:42.000Z');
+    var someWhen = '2013-11-11T22:25:42.000Z';
     var x = new TestMdl();
     var y = new TestMdl({when: someWhen});
 
