@@ -356,6 +356,7 @@ describe('Model Indexes', function () {
   });
 
   it('should not find mismatching dates', function (done) {
+    ottoman.namespace = 'TESTNAMESPACE';
     let modelId = H.uniqueId('model');
     let TestMdl = ottoman.model(modelId, {
       when: { type: 'Date', default: Date.now }
@@ -377,6 +378,7 @@ describe('Model Indexes', function () {
   });
 
   it('should only find a matching date', function (done) {
+    ottoman.namespace = 'TESTNAMESPACE';
     let modelId = H.uniqueId('model');
     let TestMdl = ottoman.model(modelId, {
       when: { type: 'string', default: '2014-11-11T22:25:42.000Z'  }
