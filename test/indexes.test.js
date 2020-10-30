@@ -392,11 +392,16 @@ describe('Model Indexes', function () {
       y.save(function (err) {
         assert.isNull(err);
 
-        TestMdl.find({when: someWhen}, {}, function (err, res) {
+        TestMdl.find({}, function (err, resp) {
           assert.isNull(err);
+          console.log(resp, 'resp');
+          assert.lengthOf(resp, 2);
+          TestMdl.find({when: someWhen}, {}, function (err, res) {
+            assert.isNull(err);
 
-          assert.lengthOf(res, 1);
-          done();
+            assert.lengthOf(res, 1);
+            done();
+          });
         });
       });
     });
