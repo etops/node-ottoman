@@ -51,7 +51,7 @@ describe('Model Instances', function () {
     it('should have a working find function', function (done) {
       TestMdl.find({ name: 'Joe Blow' }, {}, function (err, items) {
         if (err) { return done(err); }
-
+        console.log(items, 'items');
         expect(items).to.be.an('Array');
         done();
       });
@@ -60,7 +60,7 @@ describe('Model Instances', function () {
     it('should have a working count function', function (done) {
       TestMdl.count({ name: 'Joe Blow' }, {}, function (err, count) {
         if (err) { return done(err); }
-
+        console.log(count, 'count');
         expect(count).to.be.an('number');
         done();
       });

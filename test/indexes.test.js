@@ -356,7 +356,6 @@ describe('Model Indexes', function () {
   });
 
   it('should not find mismatching dates', function (done) {
-    ottoman.namespace = 'TESTNAMESPACE';
     let modelId = H.uniqueId('model');
     let TestMdl = ottoman.model(modelId, {
       when: { type: 'Date', default: Date.now }
@@ -378,11 +377,12 @@ describe('Model Indexes', function () {
   });
 
   it('should only find a matching date', function (done) {
-    ottoman.namespace = 'TESTNAMESPACE';
+    ottoman.namespace = 'default';
     let modelId = H.uniqueId('model');
     let TestMdl = ottoman.model(modelId, {
-      when: { type: 'string', default: '2014-11-11T22:25:42.000Z'  }
-    });
+      when: {type: 'string', default: '2014-11-11T22:25:42.000Z'},
+    }, {namespace: 'default'}
+    );
 
     let someWhen = '2013-11-11T22:25:42.000Z';
     let x = new TestMdl();
@@ -392,15 +392,16 @@ describe('Model Indexes', function () {
       H.saveAll([x, y],
         function (err) {
           assert.isNull(err);
-          TestMdl.find({}, function (err, resp) {
+          TestMdl.find({}, {}, function (err, resp) {
             assert.isNull(err);
             console.log(resp, 'resp');
             // assert.lengthOf(resp, 2);
-            TestMdl.find({when: someWhen}, function (err, res) {
+            TestMdl.find({when: someWhen}, {}, function (err, res) {
               console.log(res, 'res');
               assert.isNull(err);
 
               assert.lengthOf(res, 1);
+              ottoman.namespace = '';
               done();
             });
           });
