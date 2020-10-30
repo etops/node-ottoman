@@ -380,13 +380,15 @@ describe('Model Indexes', function () {
     ottoman.namespace = 'default';
     let modelId = H.uniqueId('model');
     let TestMdl = ottoman.model(modelId, {
-      when: {type: 'string', default: '2014-11-11T22:25:42.000Z'},
+      when: {type: 'string', default: '2013-11-11T22:25:42.000Z'},
     }, {namespace: 'default'}
     );
 
     let someWhen = '2013-11-11T22:25:42.000Z';
     let x = new TestMdl();
+    console.log(x, 'x');
     let y = new TestMdl({when: someWhen});
+    console.log(y, 'y');
 
     setTimeout(function () {
       H.saveAll([x, y],
