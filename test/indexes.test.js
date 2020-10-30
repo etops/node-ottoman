@@ -379,7 +379,7 @@ describe('Model Indexes', function () {
   it('should only find a matching date', function (done) {
     let modelId = H.uniqueId('model');
     let TestMdl = ottoman.model(modelId, {
-      when: { type: 'string', default: new Date(Date.now()).toISOString()  }
+      when: { type: 'string', default: '2014-11-11T22:25:42.000Z'  }
     });
 
     let someWhen = '2013-11-11T22:25:42.000Z';
@@ -403,7 +403,7 @@ describe('Model Indexes', function () {
             });
           });
         });
-    });
+    }, 1000);
   });
 
 });
