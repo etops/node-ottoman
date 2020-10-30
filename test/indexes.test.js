@@ -2,7 +2,6 @@
 
 let assert = require('chai').assert;
 let H = require('./harness');
-let HM = require('./harnessMultipleOttoman');
 let ottoman = H.lib;
 
 describe('Model Indexes', function () {
@@ -354,61 +353,6 @@ describe('Model Indexes', function () {
       assert.isNull(res);
       done();
     });
-  });
-
-  it('should not find mismatching dates', function (done) {
-    let modelId = H.uniqueId('model');
-    let TestMdl = ottoman.model(modelId, {
-      when: { type: 'Date', default: Date.now }
-    });
-
-    let x = new TestMdl();
-    let otherDate = new Date('2013-11-11T22:25:42.000Z');
-
-    x.save(function (err) {
-      assert.isNull(err);
-
-      TestMdl.find({when: otherDate}, {}, function (err, res) {
-        assert.isNull(err);
-
-        assert.lengthOf(res, 0);
-        done();
-      });
-    });
-  });
-
-  it('should only find a matching date', function (done) {
-    let modelId = HM.uniqueId('model');
-    let ottomanA = HM.setupOttoman('testing');
-
-    let TestMdl = ottomanA.model(modelId, {
-      when: {type: 'string', default: '2013-11-11T22:25:42.000Z'},
-    });
-
-    let someWhen = '2013-11-11T22:25:42.000Z';
-    let x = new TestMdl();
-    console.log(x, 'x');
-    let y = new TestMdl({when: someWhen});
-    console.log(y, 'y');
-
-    setTimeout(function () {
-      H.saveAll([x, y],
-        function (err) {
-          assert.isNull(err);
-          TestMdl.find({}, {}, function (err, resp) {
-            assert.isNull(err);
-            console.log(resp, 'resp');
-            // assert.lengthOf(resp, 2);
-            TestMdl.find({when: someWhen}, {}, function (err, res) {
-              console.log(res, 'res');
-              assert.isNull(err);
-
-              assert.lengthOf(res, 1);
-              done();
-            });
-          });
-        });
-    }, 1000);
   });
 
 });

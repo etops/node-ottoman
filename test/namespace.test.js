@@ -10,60 +10,60 @@ describe('Namespace', function () {
   this.timeout(10000);
 
   it('should be able to make reference between namespaces, with passed models ',
-  function(done) {
-    var modelId1 = H.uniqueId('model');
-    var modelId2 = H.uniqueId('model');
-    var ottomanA = H.setupOttoman('A');
-    var Model1 = ottomanA.model(modelId1, {
-      'str': 'string'
-    });
+    function(done) {
+      var modelId1 = H.uniqueId('model');
+      var modelId2 = H.uniqueId('model');
+      var ottomanA = H.setupOttoman('A');
+      var Model1 = ottomanA.model(modelId1, {
+        'str': 'string'
+      });
 
-    var ottomanB = H.setupOttoman('B', ottomanA.models, ottomanA.types);
-    var Model2 = ottomanB.model(modelId2, {
-      'str': 'string',
-      'model1': {
-        'ref': Model1
-      }
-    });
+      var ottomanB = H.setupOttoman('B', ottomanA.models, ottomanA.types);
+      var Model2 = ottomanB.model(modelId2, {
+        'str': 'string',
+        'model1': {
+          'ref': Model1
+        }
+      });
 
-    var m1 = new Model1({ str: 'test1' });
-    m1.save(function (err) {
-      expect(err).to.be.null;
-      var m2 = new Model2({ str: 'test2', model1: m1 });
-      m2.save(function (err) {
+      var m1 = new Model1({ str: 'test1' });
+      m1.save(function (err) {
         expect(err).to.be.null;
+        var m2 = new Model2({ str: 'test2', model1: m1 });
+        m2.save(function (err) {
+          expect(err).to.be.null;
+          done();
+        });
+      });
+
+    });
+
+  it('should fail to make reference between namespaces, without passed models ',
+    function(done) {
+      var modelId1 = H.uniqueId('model');
+      var modelId2 = H.uniqueId('model');
+      var ottomanA = H.setupOttoman('A');
+      var Model1 = ottomanA.model(modelId1, {
+        'str': 'string'
+      });
+
+      var ottomanB = H.setupOttoman('B');
+      var Model2 = ottomanB.model(modelId2, {
+        'str': 'string',
+        'model1': {
+          'ref': Model1
+        }
+      });
+
+      var m1 = new Model1({ str: 'test1' });
+      m1.save(function (err) {
+        expect(err).to.be.null;
+        expect(function() {
+          var m2 = new Model2({ str: 'test2', model1: m1 });
+        }).to.throw(TypeError);
         done();
       });
     });
-
-  });
-
-  it('should fail to make reference between namespaces, without passed models ',
-  function(done) {
-    var modelId1 = H.uniqueId('model');
-    var modelId2 = H.uniqueId('model');
-    var ottomanA = H.setupOttoman('A');
-    var Model1 = ottomanA.model(modelId1, {
-      'str': 'string'
-    });
-
-    var ottomanB = H.setupOttoman('B');
-    var Model2 = ottomanB.model(modelId2, {
-      'str': 'string',
-      'model1': {
-        'ref': Model1
-      }
-    });
-
-    var m1 = new Model1({ str: 'test1' });
-    m1.save(function (err) {
-      expect(err).to.be.null;
-      expect(function() {
-        var m2 = new Model2({ str: 'test2', model1: m1 });
-      }).to.throw(TypeError);
-      done();
-    });
-  });
 
 
   /* this tests explicit if that there is no connection between
@@ -73,46 +73,46 @@ describe('Namespace', function () {
    * with the same shared base ottoman
    */
   it('should be able use a base ottoman more then once',
-  function(done) {
-    var modelId1 = H.uniqueId('model');
-    var modelId2 = H.uniqueId('model');
-    var ottomanA = H.setupOttoman('A');
-    var Model1 = ottomanA.model(modelId1, {
-      'str': 'string'
-    });
+    function(done) {
+      var modelId1 = H.uniqueId('model');
+      var modelId2 = H.uniqueId('model');
+      var ottomanA = H.setupOttoman('A');
+      var Model1 = ottomanA.model(modelId1, {
+        'str': 'string'
+      });
 
-    var ottomanB = H.setupOttoman('B', ottomanA.models, ottomanA.types);
-    var Model2 = ottomanB.model(modelId2, {
-      'str': 'string',
-      'model1': {
-        'ref': Model1
-      }
-    });
+      var ottomanB = H.setupOttoman('B', ottomanA.models, ottomanA.types);
+      var Model2 = ottomanB.model(modelId2, {
+        'str': 'string',
+        'model1': {
+          'ref': Model1
+        }
+      });
 
-    var ottomanC = H.setupOttoman('C', ottomanA.models, ottomanA.types);
-    // explicit test to set same model name (modelId2)
-    var Model3 = ottomanC.model(modelId2, {
-      'str': 'string',
-      'model1': {
-        'ref': Model1
-      }
-    });
+      var ottomanC = H.setupOttoman('C', ottomanA.models, ottomanA.types);
+      // explicit test to set same model name (modelId2)
+      var Model3 = ottomanC.model(modelId2, {
+        'str': 'string',
+        'model1': {
+          'ref': Model1
+        }
+      });
 
-    var m1 = new Model1({ str: 'test1' });
-    m1.save(function (err) {
-      expect(err).to.be.null;
-      var m2 = new Model2({ str: 'test2', model1: m1 });
-      m2.save(function (err) {
+      var m1 = new Model1({ str: 'test1' });
+      m1.save(function (err) {
         expect(err).to.be.null;
-        var m3 = new Model3({ str: 'test3', model1: m1 });
-        m3.save(function (err) {
+        var m2 = new Model2({ str: 'test2', model1: m1 });
+        m2.save(function (err) {
           expect(err).to.be.null;
-          done();
+          var m3 = new Model3({ str: 'test3', model1: m1 });
+          m3.save(function (err) {
+            expect(err).to.be.null;
+            done();
+          });
         });
       });
-    });
 
-  });
+    });
 
 
   it('should n1ql query only in namespace', function(done) {
@@ -124,15 +124,15 @@ describe('Namespace', function () {
     var UserMdlA = ottomanA.model(userModelId, {
       name: 'string'
     }, {
-        queries: {
-          topPosts: {
-            type: 'n1ql',
-            of: postModelId,
-            by: 'creator',
-            consistency: ottomanA.Consistency.GLOBAL
-          }
+      queries: {
+        topPosts: {
+          type: 'n1ql',
+          of: postModelId,
+          by: 'creator',
+          consistency: ottomanA.Consistency.GLOBAL
         }
-      });
+      }
+    });
     var PostMdlA = ottomanA.model(postModelId, {
       creator: { ref: userModelId },
       msg: 'string'
@@ -141,15 +141,15 @@ describe('Namespace', function () {
     var UserMdlB = ottomanB.model(userModelId, {
       name: 'string'
     }, {
-        queries: {
-          topPosts: {
-            type: 'n1ql',
-            of: postModelId,
-            by: 'creator',
-            consistency: ottomanB.Consistency.GLOBAL
-          }
+      queries: {
+        topPosts: {
+          type: 'n1ql',
+          of: postModelId,
+          by: 'creator',
+          consistency: ottomanB.Consistency.GLOBAL
         }
-      });
+      }
+    });
     var PostMdlB = ottomanB.model(postModelId, {
       creator: { ref: userModelId },
       msg: 'string'
@@ -193,69 +193,132 @@ describe('Namespace', function () {
         // Let index creation catch up.
         setTimeout(function () {
           H.saveAll([uxA, uyA, px1A, px2A, py1A, uxB, uyB, px1B, px2B, py1B],
-          function (err) {
-            assert.isNull(err);
-
-            uxA.topPosts(function (err, res) {
+            function (err) {
               assert.isNull(err);
-              assert.isArray(res);
-              assert.propertyVal(res, 'length', 2);
-              var objx1 = null, objx2 = null;
-              if (res[0]._id === px1A._id) {
-                objx1 = res[0];
-                objx2 = res[1];
-              } else if (res[0]._id === px2A._id) {
-                objx2 = res[0];
-                objx1 = res[1];
-              } else {
-                assert.fail();
-              }
 
-              assert.equal(objx1._id, px1A._id);
-              assert.equal(objx1.msg, 'Bob Post 1');
-              assert.equal(objx2._id, px2A._id);
-              assert.equal(objx2.msg, 'Bob Post 2');
-              UserMdlA.find({}, {}, function (err, res) {
-                assert.isNull(err);
-                assert.isArray(res);
-                assert.equal(res.length, 2);
-                assert.equal(res[0]._id, uxA._id);
-                assert.equal(res[1]._id, uyA._id);
-              });
-
-              uxB.topPosts(function (err, res) {
+              uxA.topPosts(function (err, res) {
                 assert.isNull(err);
                 assert.isArray(res);
                 assert.propertyVal(res, 'length', 2);
                 var objx1 = null, objx2 = null;
-                if (res[0]._id === px1B._id) {
+                if (res[0]._id === px1A._id) {
                   objx1 = res[0];
                   objx2 = res[1];
-                } else if (res[0]._id === px2B._id) {
+                } else if (res[0]._id === px2A._id) {
                   objx2 = res[0];
                   objx1 = res[1];
                 } else {
                   assert.fail();
                 }
 
-                assert.equal(objx1._id, px1B._id);
+                assert.equal(objx1._id, px1A._id);
                 assert.equal(objx1.msg, 'Bob Post 1');
-                assert.equal(objx2._id, px2B._id);
+                assert.equal(objx2._id, px2A._id);
                 assert.equal(objx2.msg, 'Bob Post 2');
-                UserMdlB.find({}, {}, function (err, res) {
+                UserMdlA.find({}, {}, function (err, res) {
                   assert.isNull(err);
                   assert.isArray(res);
                   assert.equal(res.length, 2);
-                  assert.equal(res[0]._id, uxB._id);
-                  assert.equal(res[1]._id, uyB._id);
+                  assert.equal(res[0]._id, uxA._id);
+                  assert.equal(res[1]._id, uyA._id);
                 });
-                done();
+
+                uxB.topPosts(function (err, res) {
+                  assert.isNull(err);
+                  assert.isArray(res);
+                  assert.propertyVal(res, 'length', 2);
+                  var objx1 = null, objx2 = null;
+                  if (res[0]._id === px1B._id) {
+                    objx1 = res[0];
+                    objx2 = res[1];
+                  } else if (res[0]._id === px2B._id) {
+                    objx2 = res[0];
+                    objx1 = res[1];
+                  } else {
+                    assert.fail();
+                  }
+
+                  assert.equal(objx1._id, px1B._id);
+                  assert.equal(objx1.msg, 'Bob Post 1');
+                  assert.equal(objx2._id, px2B._id);
+                  assert.equal(objx2.msg, 'Bob Post 2');
+                  UserMdlB.find({}, {}, function (err, res) {
+                    assert.isNull(err);
+                    assert.isArray(res);
+                    assert.equal(res.length, 2);
+                    assert.equal(res[0]._id, uxB._id);
+                    assert.equal(res[1]._id, uyB._id);
+                  });
+                  done();
+                });
               });
             });
-          });
         }, 1000);
       });
     });
   });
 
+  it('should not find mismatching dates', function (done) {
+    let modelId = H.uniqueId('model');
+    let ottomanA = H.setupOttoman('A');
+    let TestMdl = ottomanA.model(modelId, {
+      when: { type: 'Date', default: Date.now }
+    });
+
+
+
+    ottomanA.ensureIndices(function (err) {
+      assert.isNull(err);
+
+      let x = new TestMdl();
+      let otherDate = new Date('2013-11-11T22:25:42.000Z');
+      x.save(function (err) {
+        assert.isNull(err);
+
+        TestMdl.find({when: otherDate}, {}, function (err, res) {
+          assert.isNull(err);
+
+          assert.lengthOf(res, 0);
+          done();
+        });
+      });
+    });
+  });
+  it('should only find a matching date', function (done) {
+    let modelId = H.uniqueId('model');
+    let ottomanA = H.setupOttoman('A');
+    let TestMdl = ottomanA.model(modelId, {
+      when: {type: 'string', default: '2013-11-11T22:25:42.000Z'},
+    });
+
+
+    ottomanA.ensureIndices(function (err) {
+      assert.isNull(err);
+
+      let someWhen = '2013-11-11T22:25:42.000Z';
+      let x = new TestMdl();
+      console.log(x, 'x');
+      let y = new TestMdl({when: someWhen});
+      console.log(y, 'y');
+
+      setTimeout(function () {
+        H.saveAll([x, y],
+          function (err) {
+            assert.isNull(err);
+            TestMdl.find({}, {}, function (err, resp) {
+              assert.isNull(err);
+              console.log(resp, 'resp');
+              // assert.lengthOf(resp, 2);
+              TestMdl.find({when: someWhen}, {}, function (err, res) {
+                console.log(res, 'res');
+                assert.isNull(err);
+
+                assert.lengthOf(res, 1);
+                done();
+              });
+            });
+          });
+      }, 1000);
+    });
+  });
 });
