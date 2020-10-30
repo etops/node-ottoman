@@ -40,12 +40,21 @@ function setupOttoman(namespace, models, types) {
   o.MockStoreAdapter = o.StoreAdapter.Mock;
   o.Consistency = ottoman.StoreAdapter.SearchConsistency;
 
+  if (!process.env.CNCSTR) {
+    process.env.CNCSTR = 'couchbase://localhost';
+  }
   // Open a connection
   if (process.env.CNCSTR) {
     var couchbase = require('couchbase');
 
     var cluster = new couchbase.Cluster(process.env.CNCSTR);
+    // TODO only for local
+    cluster.authenticate({
+      username: 'michal',
+      password: 'michal',
+    });
     var bucket = cluster.openBucket();
+
 
     var seenKeys = [];
     var _bucketInsert = bucket.insert.bind(bucket);
