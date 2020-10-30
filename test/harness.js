@@ -3,21 +3,24 @@
 var ottoman = require('../lib/ottoman.js');
 
 // TODO change me to a better solution
-if (!process.env.CNCSTR) {
-  process.env.CNCSTR = 'couchbase://localhost';
+let couchbaseString = null;
+if (process.env.CNCSTR) {
+  couchbaseString = process.env.CNCSTR;
+} else {
+  couchbaseString = 'couchbase://localhost';
 }
 
 // Open a connection
-if (process.env.CNCSTR) {
+if (couchbaseString) {
   var couchbase = require('couchbase');
 
-  var cluster = new couchbase.Cluster(process.env.CNCSTR);
-  // TODO only for local
-  cluster.authenticate({
-    username: 'michal',
-    password: 'michal',
-  });
-
+  var cluster = new couchbase.Cluster(couchbaseString);
+  if (!process.env.CNCSTR) {
+    cluster.authenticate({
+      username: 'michal',
+      password: 'michal',
+    });
+  }
   var bucket = cluster.openBucket();
 
   var seenKeys = [];
