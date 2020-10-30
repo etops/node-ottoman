@@ -78,7 +78,7 @@ jobs:
 
       - run:
           name: Run npm test
-          command: Run npm test
+          command: npm run test
 
       - run:
           name: Print couchbase logs
