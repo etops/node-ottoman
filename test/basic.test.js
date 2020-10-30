@@ -495,6 +495,7 @@ describe('Models', function () {
       assert.equal(xJson.when._type, 'Date');
       assert.equal(xJson.when.v, x.when.toISOString());
     });
+  });
 
   describe('Groups', function () {
     it('should serialize groups properly', function () {
@@ -997,8 +998,4 @@ describe('Models', function () {
       done();
     });
   });
-
-
-
-
 });
