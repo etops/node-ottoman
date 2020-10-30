@@ -3,6 +3,12 @@
 var ottoman = require('../lib/ottoman.js');
 var H = require('./harness');
 
+
+if (!process.env.CNCSTR
+) {
+  process.env.CNCSTR = 'couchbase://localhost';
+}
+
 // Some helpers
 function _saveAllModels(modelArr, callback) {
   var i = 0;
@@ -44,7 +50,10 @@ function setupOttoman(namespace, models, types) {
   if (process.env.CNCSTR) {
     var couchbase = require('couchbase');
 
-    var cluster = new couchbase.Cluster(process.env.CNCSTR);
+    var cluster = new couchbase.Cluster(process.env.CNCSTR, {
+      username: 'michal',
+      password: 'michal',
+    });
     var bucket = cluster.openBucket();
 
     var seenKeys = [];
