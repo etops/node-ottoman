@@ -267,23 +267,20 @@ describe('Namespace', function () {
 
 
 
-    ottomanA.ensureIndices(function (err) {
+    let x = new TestMdl();
+    let otherDate = new Date('2013-11-11T22:25:42.000Z');
+    x.save(function (err) {
       assert.isNull(err);
 
-      let x = new TestMdl();
-      let otherDate = new Date('2013-11-11T22:25:42.000Z');
-      x.save(function (err) {
+      TestMdl.find({when: otherDate}, {}, function (err, res) {
         assert.isNull(err);
 
-        TestMdl.find({when: otherDate}, {}, function (err, res) {
-          assert.isNull(err);
-
-          assert.lengthOf(res, 0);
-          done();
-        });
+        assert.lengthOf(res, 0);
+        done();
       });
     });
   });
+
   it('should only find a matching date', function (done) {
     let modelId = H.uniqueId('model');
     let ottomanA = H.setupOttoman('A');
@@ -291,34 +288,29 @@ describe('Namespace', function () {
       when: {type: 'string', default: '2013-11-11T22:25:42.000Z'},
     });
 
+    let someWhen = '2013-11-11T22:25:42.000Z';
+    let x = new TestMdl();
+    console.log(x, 'x');
+    let y = new TestMdl({when: someWhen});
+    console.log(y, 'y');
 
-    ottomanA.ensureIndices(function (err) {
-      assert.isNull(err);
-
-      let someWhen = '2013-11-11T22:25:42.000Z';
-      let x = new TestMdl();
-      console.log(x, 'x');
-      let y = new TestMdl({when: someWhen});
-      console.log(y, 'y');
-
-      setTimeout(function () {
-        H.saveAll([x, y],
-          function (err) {
+    setTimeout(function () {
+      H.saveAll([x, y],
+        function (err) {
+          assert.isNull(err);
+          TestMdl.find({}, {}, function (err, resp) {
             assert.isNull(err);
-            TestMdl.find({}, {}, function (err, resp) {
+            console.log(resp, 'resp');
+            // assert.lengthOf(resp, 2);
+            TestMdl.find({when: someWhen}, {}, function (err, res) {
+              console.log(res, 'res');
               assert.isNull(err);
-              console.log(resp, 'resp');
-              // assert.lengthOf(resp, 2);
-              TestMdl.find({when: someWhen}, {}, function (err, res) {
-                console.log(res, 'res');
-                assert.isNull(err);
 
-                assert.lengthOf(res, 1);
-                done();
-              });
+              assert.lengthOf(res, 1);
+              done();
             });
           });
-      }, 1000);
-    });
+        });
+    }, 1000);
   });
 });
