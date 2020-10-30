@@ -386,26 +386,23 @@ describe('Model Indexes', function () {
     let x = new TestMdl();
     let y = new TestMdl({when: someWhen});
 
-    x.save(function (err) {
-      setTimeout(function(){},2000);
-      assert.isNull(err);
-
-      y.save(function (err) {
-        assert.isNull(err);
-        setTimeout(function(){},2000);
-        TestMdl.find({}, function (err, resp) {
+    setTimeout(function () {
+      H.saveAll([x, y],
+        function (err) {
           assert.isNull(err);
-          console.log(resp, 'resp');
-          // assert.lengthOf(resp, 2);
-          TestMdl.find({when: someWhen}, function (err, res) {
-            console.log(res, 'res');
+          TestMdl.find({}, function (err, resp) {
             assert.isNull(err);
+            console.log(resp, 'resp');
+            // assert.lengthOf(resp, 2);
+            TestMdl.find({when: someWhen}, function (err, res) {
+              console.log(res, 'res');
+              assert.isNull(err);
 
-            assert.lengthOf(res, 1);
-            done();
+              assert.lengthOf(res, 1);
+              done();
+            });
           });
         });
-      });
     });
   });
 
