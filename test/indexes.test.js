@@ -2,6 +2,7 @@
 
 let assert = require('chai').assert;
 let H = require('./harness');
+let HM = require('./harnessMultipleOttoman');
 let ottoman = H.lib;
 
 describe('Model Indexes', function () {
@@ -377,12 +378,12 @@ describe('Model Indexes', function () {
   });
 
   it('should only find a matching date', function (done) {
-    ottoman.namespace = 'default';
-    let modelId = H.uniqueId('model');
-    let TestMdl = ottoman.model(modelId, {
+    let modelId = HM.uniqueId('model');
+    let ottomanA = HM.setupOttoman('testing');
+
+    let TestMdl = ottomanA.model(modelId, {
       when: {type: 'string', default: '2013-11-11T22:25:42.000Z'},
-    }, {namespace: 'default'}
-    );
+    });
 
     let someWhen = '2013-11-11T22:25:42.000Z';
     let x = new TestMdl();
@@ -403,7 +404,6 @@ describe('Model Indexes', function () {
               assert.isNull(err);
 
               assert.lengthOf(res, 1);
-              ottoman.namespace = '';
               done();
             });
           });
