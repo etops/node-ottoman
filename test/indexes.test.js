@@ -15,20 +15,20 @@ describe('Model Indexes', function () {
       name: 'string',
       company: 'string'
     },
-      {
-        index: {
-          findByName: {
-            type: indexType,
-            by: 'name',
-            consistency: ottoman.Consistency.GLOBAL
-          },
-          findByCompany: {
-            type: indexType,
-            by: 'company',
-            consistency: ottoman.Consistency.GLOBAL
-          }
+    {
+      index: {
+        findByName: {
+          type: indexType,
+          by: 'name',
+          consistency: ottoman.Consistency.GLOBAL
+        },
+        findByCompany: {
+          type: indexType,
+          by: 'company',
+          consistency: ottoman.Consistency.GLOBAL
         }
-      });
+      }
+    });
 
     ottoman.ensureIndices(function (err) {
       assert.isNull(err);
@@ -111,18 +111,18 @@ describe('Model Indexes', function () {
       name: 'string',
       company: 'string'
     },
-      {
-        index: {
-          findByName: {
-            type: 'refdoc',
-            by: 'name'
-          },
-          findByCompany: {
-            type: 'refdoc',
-            by: 'company'
-          }
+    {
+      index: {
+        findByName: {
+          type: 'refdoc',
+          by: 'name'
+        },
+        findByCompany: {
+          type: 'refdoc',
+          by: 'company'
         }
-      });
+      }
+    });
 
     ottoman.ensureIndices(function (err) {
       assert.isNull(err);
@@ -153,14 +153,14 @@ describe('Model Indexes', function () {
         name: 'string',
         company: 'string'
       },
-        {
-          index: {
-            findByNameAndCompany: {
-              type: 'refdoc',
-              by: ['name', 'company']
-            }
+      {
+        index: {
+          findByNameAndCompany: {
+            type: 'refdoc',
+            by: ['name', 'company']
           }
-        });
+        }
+      });
 
       ottoman.ensureIndices(function (err) {
         assert.isNull(err);
@@ -189,18 +189,18 @@ describe('Model Indexes', function () {
       name: 'string',
       company: 'string'
     },
-      {
-        index: {
-          findByName: {
-            type: 'refdoc',
-            by: 'name'
-          },
-          findByCompany: {
-            type: 'refdoc',
-            by: 'company'
-          }
+    {
+      index: {
+        findByName: {
+          type: 'refdoc',
+          by: 'name'
+        },
+        findByCompany: {
+          type: 'refdoc',
+          by: 'company'
         }
-      });
+      }
+    });
 
     ottoman.ensureIndices(function (err) {
       assert.isNull(err);
@@ -228,18 +228,18 @@ describe('Model Indexes', function () {
       name: 'string',
       company: 'string'
     },
-      {
-        index: {
-          findByName: {
-            type: 'refdoc',
-            by: 'name'
-          },
-          findByCompany: {
-            type: 'refdoc',
-            by: 'company'
-          }
+    {
+      index: {
+        findByName: {
+          type: 'refdoc',
+          by: 'name'
+        },
+        findByCompany: {
+          type: 'refdoc',
+          by: 'company'
         }
-      });
+      }
+    });
 
     ottoman.ensureIndices(function (err) {
       assert.isNull(err);
@@ -279,14 +279,14 @@ describe('Model Indexes', function () {
     var TestMdl = ottoman.model(modelId, {
       name: 'string'
     },
-      {
-        index: {
-          findByName: {
-            type: 'refdoc',
-            by: 'name'
-          }
+    {
+      index: {
+        findByName: {
+          type: 'refdoc',
+          by: 'name'
         }
-      });
+      }
+    });
 
     ottoman.ensureIndices(function (err) {
       assert.isNull(err);
@@ -316,14 +316,14 @@ describe('Model Indexes', function () {
     ottoX.model(modelId, {
       name: 'string'
     },
-      {
-        index: {
-          findByName: {
-            type: 'INVALID INDEX',
-            by: 'name'
-          }
+    {
+      index: {
+        findByName: {
+          type: 'INVALID INDEX',
+          by: 'name'
         }
-      });
+      }
+    });
 
     ottoX.ensureIndices(function (err) {
       assert.isNotNull(err);
@@ -339,19 +339,66 @@ describe('Model Indexes', function () {
     var TestMdl = ottoX.model(modelId, {
       name: 'string'
     },
-      {
-        index: {
-          findByName: {
-            type: 'INVALID INDEX',
-            by: 'name'
-          }
+    {
+      index: {
+        findByName: {
+          type: 'INVALID INDEX',
+          by: 'name'
         }
-      });
+      }
+    });
 
     TestMdl.findByName('', function (err, res) {
       assert.isNotNull(err);
       assert.isNull(res);
       done();
+    });
+  });
+
+  it('should not find mismatching dates', function (done) {
+    var modelId = H.uniqueId('model');
+    var TestMdl = ottoman.model(modelId, {
+      when: { type: 'Date', default: Date.now }
+    });
+
+    var x = new TestMdl();
+    var otherDate = new Date('2013-11-11T22:25:42.000Z');
+
+    x.save(function (err) {
+      assert.isNull(err);
+
+      TestMdl.find({when: otherDate}, {}, function (err, res) {
+        assert.isNull(err);
+
+        assert.lengthOf(res, 0);
+        done();
+      });
+    });
+  });
+
+  it('should only find a matching date', function (done) {
+    var modelId = H.uniqueId('model');
+    var TestMdl = ottoman.model(modelId, {
+      when: { type: 'Date', default: Date.now }
+    });
+
+    var someWhen = new Date('2013-11-11T22:25:42.000Z');
+    var x = new TestMdl();
+    var y = new TestMdl({when: someWhen});
+
+    x.save(function (err) {
+      assert.isNull(err);
+
+      y.save(function (err) {
+        assert.isNull(err);
+
+        TestMdl.find({when: someWhen}, {}, function (err, res) {
+          assert.isNull(err);
+
+          assert.lengthOf(res, 1);
+          done();
+        });
+      });
     });
   });
 
