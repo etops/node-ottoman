@@ -391,8 +391,7 @@ describe('Model Indexes', function () {
 
       y.save(function (err) {
         assert.isNull(err);
-
-        TestMdl.find({when: someWhen}, {}, function (err, res) {
+        TestMdl.find({when: someWhen}, {consistency: ottoman.Consistency.LOCAL}, function (err, res) {
           assert.isNull(err);
 
           assert.lengthOf(res, 1);

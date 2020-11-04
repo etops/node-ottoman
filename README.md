@@ -371,6 +371,10 @@ Customer.find(filters, options,
   });
 ```
 
+## Tests
+
+When you write a test, please think about ensuring consistency on your queries. You will help us to prevent losing time from debugging randomly failing/passing tests.
+Here you can find a common mistake, when someone is writing a [test for node ottoman](https://github.com/couchbaselabs/node-ottoman/issues/111).
 
 ## License
 
