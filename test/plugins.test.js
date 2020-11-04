@@ -30,8 +30,12 @@ function dummyPlugin() {
  * http://mongoosejs.com/docs/plugins.html
  */
 describe('Ottoman Plugins', function () {
-  it('should register global, but not call it immediately', function (done) {
+  beforeEach(function (done) {
     ottoman.plugins = [];
+    done();
+  });
+
+  it('should register global, but not call it immediately', function (done) {
     var plugin = dummyPlugin();
     var watch = { called: false };
     ottoman.plugin(plugin, watch);
@@ -40,7 +44,6 @@ describe('Ottoman Plugins', function () {
   });
 
   it('global plugins must be functions', function (done) {
-    ottoman.plugins = [];
     expect(function () {
       ottoman.plugin({}, {});
     }).to.throw(Error);
@@ -60,7 +63,6 @@ describe('Ottoman Plugins', function () {
   // also prove that the plugin is called with specified arguments, so that's
   // not a separate unit test.
   it('should register model plugin, and call it immediately', function (done) {
-    ottoman.plugins = [];
     var plugin = dummyPlugin();
     var model = makeAMockModel();
     var watch = { called: false };
@@ -70,7 +72,6 @@ describe('Ottoman Plugins', function () {
   });
 
   it('should provide the model when calling plugin', function (done) {
-    ottoman.plugins = [];
     var model = null;
 
     function pluginFn(modelArg, options) {
@@ -90,7 +91,6 @@ describe('Ottoman Plugins', function () {
   });
 
   it('should let models inherit global plugins', function (done) {
-    ottoman.plugins = [];
     var plugin = dummyPlugin();
     var watch = { called: false };
 
@@ -111,7 +111,6 @@ describe('Ottoman Plugins', function () {
   });
 
   it('should allow an arbitrary number of plugins', function (done) {
-    ottoman.plugins = [];
     function pluginFn(model, options) {
       options.counter = options.counter + 1;
     }
@@ -129,7 +128,6 @@ describe('Ottoman Plugins', function () {
   });
 
   it('should work properly with an ottoman event', function (done) {
-    ottoman.plugins = [];
     function fooSetterPlugin(model, options) {
       model.pre('save', function (modelInstance, next) {
         modelInstance.foo = options.foo;
