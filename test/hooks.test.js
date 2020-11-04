@@ -29,8 +29,8 @@ describe('Model hooks', function () {
 
         var modelId = H.uniqueId('model');
         var TestMdl = ottoman.model(modelId, {
-          name: 'string'
-        },
+            name: 'string'
+          },
           {
             index: {
               findByName: {

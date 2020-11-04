@@ -14,15 +14,15 @@ describe('Model Queries', function () {
     var UserMdl = ottoman.model(userModelId, {
       name: 'string'
     }, {
-        queries: {
-          topPosts: {
-            type: indexType,
-            of: postModelId,
-            by: 'creator',
-            consistency: ottoman.Consistency.GLOBAL
-          }
+      queries: {
+        topPosts: {
+          type: indexType,
+          of: postModelId,
+          by: 'creator',
+          consistency: ottoman.Consistency.GLOBAL
         }
-      });
+      }
+    });
     var PostMdl = ottoman.model(postModelId, {
       creator: { ref: userModelId },
       msg: 'string'
@@ -92,8 +92,8 @@ describe('Model Queries', function () {
       var userModelId = H.uniqueId('model');
       var postModelId = H.uniqueId('model');
       var UserMdl = ottoman.model(userModelId, {
-        name: 'string'
-      },
+          name: 'string'
+        },
         {
           queries: {
             topPosts: {
