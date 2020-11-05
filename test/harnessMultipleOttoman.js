@@ -2,6 +2,7 @@
 
 var ottoman = require('../lib/ottoman.js');
 var H = require('./harness');
+var setup = require('./setup.js');
 
 // Some helpers
 function _saveAllModels(modelArr, callback) {
@@ -40,50 +41,7 @@ function setupOttoman(namespace, models, types) {
   o.MockStoreAdapter = o.StoreAdapter.Mock;
   o.Consistency = ottoman.StoreAdapter.SearchConsistency;
 
-  // Open a connection
-  if (process.env.CNCSTR) {
-    var couchbase = require('couchbase');
-
-    var cluster = new couchbase.Cluster(process.env.CNCSTR);
-    var bucket = cluster.openBucket();
-
-    var seenKeys = [];
-    var _bucketInsert = bucket.insert.bind(bucket);
-    bucket.insert = function (key, value, options, callback) {
-      seenKeys.push(key);
-      return _bucketInsert(key, value, options, callback);
-    };
-    var _bucketUpsert = bucket.upsert.bind(bucket);
-    bucket.upsert = function (key, value, options, callback) {
-      seenKeys.push(key);
-      return _bucketUpsert(key, value, options, callback);
-    };
-    var _bucketReplace = bucket.replace.bind(bucket);
-    bucket.replace = function (key, value, options, callback) {
-      seenKeys.push(key);
-      return _bucketReplace(key, value, options, callback);
-    };
-    after(function (done) {
-      if (seenKeys.length === 0) {
-        return done();
-      }
-
-      var remain = seenKeys.length;
-      for (var i = 0; i < seenKeys.length; ++i) {
-        bucket.remove(seenKeys[i], function () {
-          remain--;
-          if (remain === 0) {
-            seenKeys = [];
-            done();
-          }
-        });
-      }
-    });
-
-    o.bucket = bucket;
-  } else {
-    o.store = new ottoman.MockStoreAdapter();
-  }
+  o = setup.init(o);
 
   return o;
 }

@@ -11,7 +11,7 @@
   "license": "Apache2",
   "name": "@etops/ottoman",
   "scripts": {
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js",
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js --exit",
     "lint": "eslint ./lib"
   },
   "publishConfig": {
@@ -38,5 +38,5 @@
     "type": "git",
     "url": "http://github.com/etops/node-ottoman.git"
   },
-  "version": "1.0.8"
+  "version": "1.0.9"
 }
