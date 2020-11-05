@@ -1,5 +1,5 @@
 'use strict';
-
+/*const log = require('why-is-node-running');*/
 var ottoman = require('../lib/ottoman.js');
 
 // TODO change me to a better solution
@@ -50,6 +50,11 @@ if (couchbaseString) {
         remain--;
         if (remain === 0) {
           seenKeys = [];
+          // Here you can verify that ottoman connections
+          // are not closing when all tests are finished
+          /* setTimeout(function () {
+            log() // logs out active handles that are keeping node running
+          }, 500);*/
           done();
         }
       });
