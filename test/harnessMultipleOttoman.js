@@ -2,6 +2,7 @@
 
 var ottoman = require('../lib/ottoman.js');
 var H = require('./harness');
+var setup = require('./setup.js');
 
 // Some helpers
 function _saveAllModels(modelArr, callback) {
@@ -41,21 +42,17 @@ function setupOttoman(namespace, models, types) {
   o.Consistency = ottoman.StoreAdapter.SearchConsistency;
 
   // TODO change me to a better solution
-  let couchbaseString = null;
-  if (process.env.CNCSTR) {
-    couchbaseString = process.env.CNCSTR;
-  } else {
-    couchbaseString = 'couchbase://localhost';
-  }
+  var setupdata = setup.init();
+
   // Open a connection
-  if (couchbaseString) {
+  if (setupdata.couchbaseString) {
     var couchbase = require('couchbase');
 
-    var cluster = new couchbase.Cluster(couchbaseString);
+    var cluster = new couchbase.Cluster(setupdata.couchbaseString);
     if (!process.env.CNCSTR) {
       cluster.authenticate({
-        username: 'michal',
-        password: 'michal',
+        username: setupdata.couchbaseUsername,
+        password: setupdata.couchbasePassword,
       });
     }
     var bucket = cluster.openBucket();
