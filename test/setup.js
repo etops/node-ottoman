@@ -7,7 +7,7 @@ module.exports.init = function (ottoman) {
     couchbasePassword: null
   };
   if (process.env.CNCSTR) {
-    setupData.couchbaseString = setupData.env.CNCSTR;
+    setupData.couchbaseString = process.env.CNCSTR;
   } else {
     setupData.couchbaseString = 'couchbase://localhost';
     setupData.couchbaseUsername = 'michal';
