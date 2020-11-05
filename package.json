@@ -11,7 +11,7 @@
   "license": "Apache2",
   "name": "@etops/ottoman",
   "scripts": {
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --exit -- test/*.test.js",
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js --exit",
     "lint": "eslint ./lib"
   },
   "publishConfig": {
