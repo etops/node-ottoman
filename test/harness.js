@@ -1,64 +1,8 @@
 'use strict';
-/*const log = require('why-is-node-running');*/
 var ottoman = require('../lib/ottoman.js');
 var setup = require('./setup.js');
 
-var setupdata = setup.init();
-// Open a connection
-if (setupdata.couchbaseString) {
-  var couchbase = require('couchbase');
-
-  var cluster = new couchbase.Cluster(setupdata.couchbaseString);
-  if (!process.env.CNCSTR) {
-    cluster.authenticate({
-      username: setupdata.couchbaseUsername,
-      password: setupdata.couchbasePassword,
-    });
-  }
-  var bucket = cluster.openBucket();
-
-  var seenKeys = [];
-  var _bucketInsert = bucket.insert.bind(bucket);
-  bucket.insert = function (key, value, options, callback) {
-    seenKeys.push(key);
-    return _bucketInsert(key, value, options, callback);
-  };
-  var _bucketUpsert = bucket.upsert.bind(bucket);
-  bucket.upsert = function (key, value, options, callback) {
-    seenKeys.push(key);
-    return _bucketUpsert(key, value, options, callback);
-  };
-  var _bucketReplace = bucket.replace.bind(bucket);
-  bucket.replace = function (key, value, options, callback) {
-    seenKeys.push(key);
-    return _bucketReplace(key, value, options, callback);
-  };
-  after(function (done) {
-    if (seenKeys.length === 0) {
-      return done();
-    }
-
-    var remain = seenKeys.length;
-    for (var i = 0; i < seenKeys.length; ++i) {
-      bucket.remove(seenKeys[i], function () {
-        remain--;
-        if (remain === 0) {
-          seenKeys = [];
-          // Here you can verify that ottoman connections
-          // are not closing when all tests are finished
-          /* setTimeout(function () {
-            log() // logs out active handles that are keeping node running
-          }, 500);*/
-          done();
-        }
-      });
-    }
-  });
-
-  ottoman.bucket = bucket;
-} else {
-  ottoman.store = new ottoman.MockStoreAdapter();
-}
+ottoman = setup.init(ottoman);
 
 // Setup Ottoman
 module.exports.lib = ottoman;
