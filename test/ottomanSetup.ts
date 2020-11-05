@@ -71,3 +71,23 @@ module.exports.init = function (ottoman) {
 
   return ottoman;
 };
+
+module.exports.saveAllModels = function saveAllModels(modelArr, callback) {
+  var i = 0;
+  (function __doOne() {
+    if (i >= modelArr.length) {
+      callback(null);
+      return;
+    }
+
+    modelArr[i].save(function (err) {
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      i++;
+      __doOne();
+    })
+  })();
+}

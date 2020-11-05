@@ -189,6 +189,7 @@ function _testDocFilter(filter, doc) {
     }
     var didContain = false;
     for (var k = 0; k < doc.length; ++k) {
+      // @ts-ignore
       didContain |= _testDocFilter(filter.$contains, doc[k]);
     }
     if (!didContain) {

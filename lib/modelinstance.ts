@@ -7,6 +7,11 @@ var _ = require('lodash');
 var lodashDeep = require('lodash-deep');
 _.mixin(lodashDeep);
 
+type ModelDataType = {
+  key: any,
+  data: any,
+  cas: any
+};
 function ModelData() {
   this.key = null;
   this.data = null;
@@ -26,9 +31,9 @@ function ModelRefData() {
  */
 function ModelInstance() {
   // TODO: Remove this
-  var args = arguments;
+  var args: any = arguments;
 
-  var $ = this.$ = {};
+  var $: any = this.$ = {};
   Object.defineProperty(this, '$', {
     enumerable: false
   });
@@ -40,9 +45,12 @@ function ModelInstance() {
   $.refKeys = [];
 
   if (args.length === 1 && args[0] instanceof ModelData) {
+    // @ts-ignore
     $.key = args[0].key;
+    // @ts-ignore
     ModelInstance.applyData(this, args[0]);
   } else if (args.length === 1 && args[0] instanceof ModelRefData) {
+    // @ts-ignore
     $.key = args[0].key;
   } else {
     $.schema.applyDefaultsToObject(this);
@@ -74,7 +82,7 @@ ModelInstance.fromData = function (data) {
  * @param {ModelInstance} mdlInst
  * @param {Object} data
  */
-ModelInstance.applyData = function (mdlInst, data) {
+ModelInstance.applyData = function (mdlInst, data: ModelDataType) {
   if (!(data instanceof ModelData)) {
     throw new Error('ApplyData must be called with ModelData instance.');
   }
@@ -177,7 +185,7 @@ function _findField(fields, name) {
   return null;
 }
 
-function _encodeValue(context, type, value, forceTyping, f) {
+function _encodeValue(context, type, value: any, forceTyping, f) {
   if (context.isModel(type)) {
     if (!(value instanceof type)) {
       throw new Error('Expected ' + f.name + ' type to be a `' +
@@ -217,12 +225,15 @@ function _encodeValue(context, type, value, forceTyping, f) {
     }
     // Values must match stated type names, unless the reference is to
     // 'Mixed', then any reference will do.
+    // @ts-ignore
     if (type.name !== value.$.schema.name && (type.name !== 'Mixed')) {
-      throw new Error('Expected type to be `' +
-        type.name + '` (got `' + value.$.schema.name + '`)');
+      // @ts-ignore
+      throw new Error('Expected type to be `' + type.name + '` (got `' + value.$.schema.name + '`)');
     }
     return {
+      // @ts-ignore
       '_type': value.$.schema.namePath(true),
+      // @ts-ignore
       '$ref': value.id()
     };
   } else if (type === Schema.DateType) {
@@ -238,6 +249,7 @@ function _encodeValue(context, type, value, forceTyping, f) {
     }
   } else if (type === Schema.MixedType) {
     if (value instanceof ModelInstance) {
+      // @ts-ignore
       return value._toCoo(type.name, forceTyping);
     } else if (value instanceof Date) {
       return {
@@ -268,7 +280,7 @@ function _encodeValue(context, type, value, forceTyping, f) {
  */
 ModelInstance.prototype._toCoo = function (refType, forceTyping) {
   var $ = this.$;
-  var objOut = {};
+  var objOut: any = {};
 
   if (forceTyping || this.$.schema.name !== refType) {
     objOut._type = this.$.schema.namePath(true);
@@ -406,7 +418,7 @@ function _tryAddRefs(bucket, keys, refKey, callback) {
   function stepBackward() {
     if (i === -1) {
       if (errs.length > 1) {
-        var err = new Error('CRITICAL Error occured while storing refdoc.');
+        var err: any = new Error('CRITICAL Error occured while storing refdoc.');
         err.errors = errs;
         callback(err);
       } else {
@@ -588,6 +600,7 @@ ModelInstance.prototype.load = function () {
 
   function loadSubItem() {
     if (loadItems.length === 0) {
+      // @ts-ignore
       finalCallback(null);
       return;
     }
@@ -627,6 +640,7 @@ ModelInstance.prototype.load = function () {
       var key = _modelKey(self);
       $.schema.store.get(key, function (err, data, cas) {
         if (err) {
+          // @ts-ignore
           finalCallback(err);
           return;
         }
