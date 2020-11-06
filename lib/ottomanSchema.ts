@@ -4,7 +4,6 @@ var util = require('util');
 var ottopath = require('./ottopath');
 var StoreAdapter = require('./ottomanStoreadapter');
 
-var SearchConsistency = StoreAdapter.SearchConsistency;
 
 /**
  * A validator function validates a Schema field to ensure it
@@ -91,13 +90,13 @@ function SchemaIndexFn() {
   this.type = null;
   this.name = null;
   this.fields = null;
-  this.consistency = SearchConsistency.NONE;
+  this.consistency = StoreAdapter.SearchConsistency.NONE;
 }
 
 function RefDocIndexFn() {
   SchemaIndexFn.call(this);
   this.type = 'refdoc';
-  this.consistency = SearchConsistency.GLOBAL;
+  this.consistency = StoreAdapter.SearchConsistency.GLOBAL;
 }
 util.inherits(RefDocIndexFn, SchemaIndexFn);
 
@@ -106,7 +105,7 @@ function ViewQueryFn() {
   this.name = null;
   this.of = '';
   this.field = null;
-  this.consistency = SearchConsistency.NONE;
+  this.consistency = StoreAdapter.SearchConsistency.NONE;
 }
 
 
@@ -280,7 +279,7 @@ OttomanSchema.prototype.addRefDocIndexFn = function (name, indexDef) {
   }
 
   if (indexDef.consistency !== undefined &&
-    indexDef.consistency !== SearchConsistency.GLOBAL) {
+    indexDef.consistency !== StoreAdapter.SearchConsistency.GLOBAL) {
     throw new Error('Cannot define refdoc index with non-global consistency.');
   }
 
@@ -452,8 +451,7 @@ function _decodeValue(context, type, data) {
       throw new Error('Invalid type specified (' + type.name + ')');
     }
 
-    if ((modelType.type && modelType.type === 'Mixed') ||
-      modelType === OttomanSchema.Mixed) {
+    if ((modelType.type && modelType.type === 'Mixed') || modelType === OttomanSchema.Mixed) {
       // This is a mixed type reference, so we have to get the type from
       // the **reference**, not from the defined model type (Mixed)
       modelType = context.typeByName(data._type);
@@ -500,9 +498,7 @@ function _decodeValue(context, type, data) {
       }
 
       var outObj = {};
-      /*eslint-disable no-use-before-define */
       _decodeFields(context, type.fields, outObj, data);
-      /*eslint-enable no-use-before-define */
       return outObj;
     } else if (type instanceof ModelRef) {
       throw new Error(
