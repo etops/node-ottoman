@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('assert');
-var Schema = require('../lib/schema');
+var Schema = require('../lib/ottomanSchema');
 
 it('should provide a custom inspector for CoreTypes', function () {
   assert.equal(Schema.StringType.inspect(), 'CoreType(string)');

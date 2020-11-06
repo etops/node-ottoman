@@ -635,7 +635,7 @@ CbStoreAdapter.prototype.searchIndex =
  * @private
  * @ignore
  */
-function _buildFilterExprs(filters, expressions, root = '') {
+function _buildFilterExprs(filters, expressions, root?) {
   var SPECIAL_KEYS = ['$exists', '$missing', '$contains', '$like'];
   var BOOLEAN = ['or', 'and'];
   if (!root) {

@@ -10,7 +10,7 @@ var SearchConsistency = StoreAdapter.SearchConsistency;
  * A validator function validates a Schema field to ensure it
  * matches the expected traits.
  *
- * @typedef {function} Schema.Validator
+ * @typedef {function} OttomanSchema.Validator
  *
  * @param {*} value
  *  The value of the property being validated.
@@ -110,7 +110,7 @@ function ViewQueryFn() {
 }
 
 
-function Schema(context) {
+function OttomanSchema(context) {
   this.context = context;
   this.name = '';
   this.fields = [];
@@ -122,7 +122,7 @@ function Schema(context) {
   this.postHandlers = {};
 }
 
-Schema.prototype.namePath = function (typeOnly) {
+OttomanSchema.prototype.namePath = function (typeOnly) {
   if (typeOnly) {
     return this.name;
   }
@@ -135,7 +135,7 @@ Schema.prototype.namePath = function (typeOnly) {
 };
 
 // This function is private so the API can run the pre/post handlers
-Schema.prototype._validate = function (mdlInst) {
+OttomanSchema.prototype._validate = function (mdlInst) {
   // Anything which is a fieldGroup causes a DFS of the trees to validate
   // any validators which are child elements in the tree
   var validateTree = function(field, instSubTree) {
@@ -159,7 +159,7 @@ Schema.prototype._validate = function (mdlInst) {
   }
 };
 
-Schema.prototype.validate = function (mdlInst, callback) {
+OttomanSchema.prototype.validate = function (mdlInst, callback) {
   var self = this;
   this.execPreHandlers('validate', mdlInst, function (err) {
     if (err) {
@@ -178,7 +178,7 @@ Schema.prototype.validate = function (mdlInst, callback) {
   });
 };
 
-Schema.prototype.indexName = function (fields) {
+OttomanSchema.prototype.indexName = function (fields) {
   var fieldKeys = [];
   for (var i = 0; i < fields.length; ++i) {
     fieldKeys.push(fields[i].replace(/\./g, '::'));
@@ -186,15 +186,15 @@ Schema.prototype.indexName = function (fields) {
   return this.namePath(false) + '$' + fieldKeys.join('$');
 };
 
-Schema.prototype.refKeyPrefix = function (fields) {
+OttomanSchema.prototype.refKeyPrefix = function (fields) {
   return '$' + this.indexName(fields);
 };
 
-Schema.prototype.refKey = function (fields, values) {
+OttomanSchema.prototype.refKey = function (fields, values) {
   return this.refKeyPrefix(fields) + '|' + values.join('|');
 };
 
-Schema.prototype.refKeys = function (mdl) {
+OttomanSchema.prototype.refKeys = function (mdl) {
   // Find all the refkey indexes associated with this model.
   var refIndices = [];
   for (var k = 0; k < this.indices.length; ++k) {
@@ -242,7 +242,7 @@ Schema.prototype.refKeys = function (mdl) {
 };
 
 
-Schema.prototype.addIndex = function (index) {
+OttomanSchema.prototype.addIndex = function (index) {
   for (var i = 0; i < this.indices.length; ++i) {
     var oldIndex = this.indices[i];
     if (_matchIndexes(oldIndex, index)) {
@@ -253,7 +253,7 @@ Schema.prototype.addIndex = function (index) {
   this.indices.push(index);
 };
 
-Schema.prototype.addDefIndexFn = function (name, indexDef) {
+OttomanSchema.prototype.addDefIndexFn = function (name, indexDef) {
   var fields = indexDef.by;
   if (!Array.isArray(fields)) {
     fields = [fields];
@@ -273,7 +273,7 @@ Schema.prototype.addDefIndexFn = function (name, indexDef) {
   this.indexFns.push(rdifn);
 };
 
-Schema.prototype.addRefDocIndexFn = function (name, indexDef) {
+OttomanSchema.prototype.addRefDocIndexFn = function (name, indexDef) {
   var fields = indexDef.by;
   if (!Array.isArray(fields)) {
     fields = [fields];
@@ -295,7 +295,7 @@ Schema.prototype.addRefDocIndexFn = function (name, indexDef) {
   this.indexFns.push(rdifn);
 };
 
-Schema.prototype.addIndexFn = function (name, indexDef) {
+OttomanSchema.prototype.addIndexFn = function (name, indexDef) {
   if (!indexDef.type) {
     indexDef.type = 'view';
   }
@@ -306,7 +306,7 @@ Schema.prototype.addIndexFn = function (name, indexDef) {
   }
 };
 
-Schema.prototype._tryAddDefQueryFn = function (name, queryDef) {
+OttomanSchema.prototype._tryAddDefQueryFn = function (name, queryDef) {
   var remoteTypeName = queryDef.of;
   var remoteField = queryDef.by;
 
@@ -326,7 +326,7 @@ Schema.prototype._tryAddDefQueryFn = function (name, queryDef) {
   remoteSchema.addIndex(index);
 };
 
-Schema.prototype.addQueryFn = function (name, queryDef) {
+OttomanSchema.prototype.addQueryFn = function (name, queryDef) {
   if (!queryDef.type) {
     queryDef.type = 'view';
   }
@@ -342,11 +342,11 @@ Schema.prototype.addQueryFn = function (name, queryDef) {
   this.queryFns.push(vqfn);
 };
 
-Schema.prototype.addField = function (field) {
+OttomanSchema.prototype.addField = function (field) {
   this.fields.push(field);
 };
 
-Schema.prototype.setIdField = function (path) {
+OttomanSchema.prototype.setIdField = function (path) {
   this.idField = path;
 
   if (this.idField) {
@@ -374,7 +374,7 @@ function _findField(fields, name) {
   return null;
 }
 
-Schema.prototype.fieldVal = function (mdl, name) {
+OttomanSchema.prototype.fieldVal = function (mdl, name) {
   return eval( // jshint -W061
     'mdl.' + name);
 };
@@ -405,7 +405,7 @@ function _fieldSearch(context, fields, name) {
   return null;
 }
 
-Schema.prototype.field = function (name) {
+OttomanSchema.prototype.field = function (name) {
   return _fieldSearch(this.context, this.fields, name);
 };
 
@@ -422,7 +422,7 @@ function _fieldTypeSearchNamed(obj, fieldName, context) {
     return _fieldTypeSearchNamed(obj.schema, fieldName, context);
   }
 
-  if (obj instanceof Schema) {
+  if (obj instanceof OttomanSchema) {
     return _fieldTypeSearchNamedFields(obj.fields, fieldName);
   } else if (obj instanceof FieldGroup) {
     return _fieldTypeSearchNamedFields(obj.fields, fieldName);
@@ -453,7 +453,7 @@ function _decodeValue(context, type, data) {
     }
 
     if ((modelType.type && modelType.type === 'Mixed') ||
-      modelType === Schema.Mixed) {
+      modelType === OttomanSchema.Mixed) {
       // This is a mixed type reference, so we have to get the type from
       // the **reference**, not from the defined model type (Mixed)
       modelType = context.typeByName(data._type);
@@ -578,7 +578,7 @@ function _decodeUserValue(context, type, data) {
   } else if (type instanceof ModelRef) {
     var expectedType = context.typeByName(type.name);
 
-    if (type.name === 'Mixed' || expectedType === Schema.Mixed) {
+    if (type.name === 'Mixed' || expectedType === OttomanSchema.Mixed) {
       // Pass; mixed references are permitted.
     } else if (!(data instanceof expectedType)) {
       throw new Error('Expected value to be a ModelInstance of type `' +
@@ -609,7 +609,7 @@ function _fieldTypeSearch(obj, pathObj, context) {
   }
 }
 
-Schema.prototype.fieldType = function (path) {
+OttomanSchema.prototype.fieldType = function (path) {
   var obj = this;
 
   var pathArr = ottopath.parse(path);
@@ -622,15 +622,15 @@ Schema.prototype.fieldType = function (path) {
   return obj;
 };
 
-Schema.prototype.applyDataToObject = function (obj, data) {
+OttomanSchema.prototype.applyDataToObject = function (obj, data) {
   _decodeFields(this.context, this.fields, obj, data);
 };
 
-Schema.prototype.applyUserDataToObject = function (obj, data) {
+OttomanSchema.prototype.applyUserDataToObject = function (obj, data) {
   _decodeUserFields(this.context, this.fields, obj, data);
 };
 
-Schema.prototype.applyDefaultsToObject = function (obj) {
+OttomanSchema.prototype.applyDefaultsToObject = function (obj) {
   for (var i = 0; i < this.fields.length; ++i) {
     var field = this.fields[i];
 
@@ -648,7 +648,7 @@ Schema.prototype.applyDefaultsToObject = function (obj) {
   }
 };
 
-Schema.prototype.applyPropsToObj = function (obj) {
+OttomanSchema.prototype.applyPropsToObj = function (obj) {
   for (var i = 0; i < this.fields.length; ++i) {
     var field = this.fields[i];
 
@@ -660,7 +660,7 @@ Schema.prototype.applyPropsToObj = function (obj) {
   }
 };
 
-Schema.prototype.execPreHandlers = function (event, mdlInst, callback) {
+OttomanSchema.prototype.execPreHandlers = function (event, mdlInst, callback) {
   if (!this.preHandlers[event]) {
     callback(null);
     return;
@@ -686,7 +686,7 @@ Schema.prototype.execPreHandlers = function (event, mdlInst, callback) {
   doNext();
 };
 
-Schema.prototype.execPostHandlers = function (event, mdlInst, callback) {
+OttomanSchema.prototype.execPostHandlers = function (event, mdlInst, callback) {
   if (!this.postHandlers[event]) {
     callback(null);
     return;
@@ -712,7 +712,7 @@ Schema.prototype.execPostHandlers = function (event, mdlInst, callback) {
 
 var supportedEvents = ['validate', 'save', 'load', 'remove'];
 
-Schema.prototype.addPreHandler = function (event, callback) {
+OttomanSchema.prototype.addPreHandler = function (event, callback) {
   if (supportedEvents.indexOf(event) === -1) {
     throw new Error('Unsupported event type `' + event + '`.');
   }
@@ -722,7 +722,7 @@ Schema.prototype.addPreHandler = function (event, callback) {
   this.preHandlers[event].push(callback);
 };
 
-Schema.prototype.addPostHandler = function (event, fn) {
+OttomanSchema.prototype.addPostHandler = function (event, fn) {
   if (supportedEvents.indexOf(event) === -1) {
     throw new Error('Unsupported event type `' + event + '`.');
   }
@@ -740,7 +740,7 @@ var _typeByNameLkp = {
   'Date': dateCoreType,
   'Mixed': mixedCoreType
 };
-Schema.coreTypeByName = function (type) {
+OttomanSchema.coreTypeByName = function (type) {
   var coreType = _typeByNameLkp[type];
   if (coreType) {
     return coreType;
@@ -748,23 +748,23 @@ Schema.coreTypeByName = function (type) {
   return null;
 };
 
-Schema.isCoreType = function (type) {
+OttomanSchema.isCoreType = function (type) {
   return type instanceof CoreType;
 };
 
-Schema.StringType = stringCoreType;
-Schema.NumberType = numberCoreType;
-Schema.IntegerType = integerCoreType;
-Schema.BooleanType = boolCoreType;
-Schema.DateType = dateCoreType;
-Schema.MixedType = mixedCoreType;
-Schema.Field = SchemaField;
-Schema.ModelRef = ModelRef;
-Schema.ListField = ListField;
-Schema.FieldGroup = FieldGroup;
-Schema.Index = SchemaIndex;
-Schema.ViewQueryFn = ViewQueryFn;
-Schema.RefDocIndexFn = RefDocIndexFn;
-Schema.RefDocIndex = RefDocIndex;
+OttomanSchema.StringType = stringCoreType;
+OttomanSchema.NumberType = numberCoreType;
+OttomanSchema.IntegerType = integerCoreType;
+OttomanSchema.BooleanType = boolCoreType;
+OttomanSchema.DateType = dateCoreType;
+OttomanSchema.MixedType = mixedCoreType;
+OttomanSchema.Field = SchemaField;
+OttomanSchema.ModelRef = ModelRef;
+OttomanSchema.ListField = ListField;
+OttomanSchema.FieldGroup = FieldGroup;
+OttomanSchema.Index = SchemaIndex;
+OttomanSchema.ViewQueryFn = ViewQueryFn;
+OttomanSchema.RefDocIndexFn = RefDocIndexFn;
+OttomanSchema.RefDocIndex = RefDocIndex;
 
-module.exports = Schema;
+module.exports = OttomanSchema;

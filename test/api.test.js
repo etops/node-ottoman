@@ -6,7 +6,7 @@ var ottoman = H.lib;
 var ModelInstance = require('../lib/modelinstance');
 var cbStoreAdapter = require('../lib/cbstoreadapter');
 var StoreAdapter = require('../lib/storeadapter');
-var Schema = require('../lib/schema');
+var Schema = require('../lib/ottomanSchema');
 /**
  * Purpose of this test is just to verify that the public API remains stable.
  * This doesn't run functions, but checks that they exist.  This allows more

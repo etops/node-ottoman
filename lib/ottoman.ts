@@ -1,7 +1,7 @@
 'use strict';
 
 var util = require('util');
-var Schema = require('./schema');
+var Schema = require('./ottomanSchema');
 var StoreAdapter = require('./storeadapter');
 var cbStoreAdapter = require('./cbstoreadapter');
 var mockStoreAdapter = require('./mockstoreadapter');

@@ -2,7 +2,7 @@
 
 var util = require('util');
 var jsonpath = require('jsonpath');
-var Schema = require('./schema');
+var Schema = require('./ottomanSchema');
 var _ = require('lodash');
 var lodashDeep = require('lodash-deep');
 _.mixin(lodashDeep);
