@@ -11,7 +11,7 @@
   "license": "Apache2",
   "name": "@etops/ottoman",
   "scripts": {
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js --exit",
+    "test": "NODE_ENV=test TS_NODE_PROJECT='./tsconfig.json' ./node_modules/mocha/bin/_mocha --require ts-node/register --colors './test/*.test.ts' --exit",
     "tsc:w": "tsc -w",
     "lint": "eslint ./lib"
   },

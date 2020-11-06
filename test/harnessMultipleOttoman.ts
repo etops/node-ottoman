@@ -1,8 +1,8 @@
 'use strict';
 
-var ottoman = require('../lib/ottoman.js');
+var ottoman = require('../lib/ottoman');
 var H = require('./harness');
-var ottomanSetup = require('./ottomanSetup.js');
+var ottomanSetup = require('./ottomanSetup');
 
 // Some helpers
 module.exports.saveAll = ottomanSetup.saveAllModels;

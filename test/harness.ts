@@ -1,6 +1,6 @@
 'use strict';
-var ottoman = require('../lib/ottoman.js');
-var ottomanSetup = require('./ottomanSetup.js');
+var ottoman = require('../lib/ottoman');
+var ottomanSetup = require('./ottomanSetup');
 
 ottoman = ottomanSetup.init(ottoman);
 
