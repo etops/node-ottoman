@@ -2,7 +2,7 @@
 
 var util = require('util');
 var Schema = require('./ottomanSchema');
-var StoreAdapter = require('./storeadapter');
+var StoreAdapter = require('./ottomanStoreadapter');
 var cbStoreAdapter = require('./cbstoreadapter');
 var mockStoreAdapter = require('./mockstoreadapter');
 var ModelInstance = require('./modelinstance');

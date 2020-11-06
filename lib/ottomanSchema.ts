@@ -2,7 +2,7 @@
 
 var util = require('util');
 var ottopath = require('./ottopath');
-var StoreAdapter = require('./storeadapter');
+var StoreAdapter = require('./ottomanStoreadapter');
 
 var SearchConsistency = StoreAdapter.SearchConsistency;
 

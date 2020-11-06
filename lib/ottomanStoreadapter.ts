@@ -36,10 +36,10 @@ var SearchConsistency = {
  *
  * @constructor
  */
-function StoreAdapter() {
+function OttomanStoreadapter() {
 }
 
-StoreAdapter.SearchConsistency = SearchConsistency;
+OttomanStoreadapter.SearchConsistency = SearchConsistency;
 
 /**
  * This callback is invoked by store adapter get operations.
@@ -97,4 +97,4 @@ StoreAdapter.SearchConsistency = SearchConsistency;
  *   Any errors that occured during the processing of the request.
  */
 
-module.exports = StoreAdapter;
+module.exports = OttomanStoreadapter;

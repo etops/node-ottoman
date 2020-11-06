@@ -6,7 +6,7 @@ var H = require('./harness');
 var ottoman = H.lib;
 var ModelInstance = require('../lib/modelinstance');
 var cbStoreAdapter = require('../lib/cbstoreadapter');
-var StoreAdapter = require('../lib/storeadapter');
+var StoreAdapter = require('../lib/ottomanStoreadapter');
 var Schema = require('../lib/ottomanSchema');
 
 /**
