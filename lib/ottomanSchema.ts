@@ -3,6 +3,7 @@
 var util = require('util');
 var ottopath = require('./ottopath');
 var StoreAdapter = require('./ottomanStoreadapter');
+var findField = require('./_findField');
 
 
 /**
@@ -107,7 +108,6 @@ function ViewQueryFn() {
   this.field = null;
   this.consistency = StoreAdapter.SearchConsistency.NONE;
 }
-
 
 function OttomanSchema(context) {
   this.context = context;
@@ -364,15 +364,6 @@ OttomanSchema.prototype.setIdField = function (path) {
   }
 };
 
-function _findField(fields, name) {
-  for (var i = 0; i < fields.length; ++i) {
-    if (fields[i].name === name) {
-      return fields[i];
-    }
-  }
-  return null;
-}
-
 OttomanSchema.prototype.fieldVal = function (mdl, name) {
   return eval( // jshint -W061
     'mdl.' + name);
@@ -409,7 +400,7 @@ OttomanSchema.prototype.field = function (name) {
 };
 
 function _fieldTypeSearchNamedFields(fields, fieldName) {
-  var field = _findField(fields, fieldName);
+  var field = findField(fields, fieldName);
   if (field) {
     return field.type;
   }
@@ -422,8 +413,10 @@ function _fieldTypeSearchNamed(obj, fieldName, context) {
   }
 
   if (obj instanceof OttomanSchema) {
+    // @ts-ignore
     return _fieldTypeSearchNamedFields(obj.fields, fieldName);
   } else if (obj instanceof FieldGroup) {
+    // @ts-ignore
     return _fieldTypeSearchNamedFields(obj.fields, fieldName);
   } else {
     throw new Error('Unexpected pathing object type.');
@@ -432,6 +425,7 @@ function _fieldTypeSearchNamed(obj, fieldName, context) {
 
 function _fieldTypeSearchWildcard(obj) {
   if (obj instanceof ListField) {
+    // @ts-ignore
     return obj.type;
   } else {
     throw new Error('Path does not match Schema for wildcard array access.');
@@ -445,12 +439,15 @@ function _decodeValue(context, type, data) {
         'Field looks like a reference, but model does not agree!');
     }
 
+    // @ts-ignore
     var modelType = context.typeByName(type.name);
     // TODO: This should probably be checked earlier than this!
     if (!modelType) {
+      // @ts-ignore
       throw new Error('Invalid type specified (' + type.name + ')');
     }
 
+    // @ts-ignore
     if ((modelType.type && modelType.type === 'Mixed') || modelType === OttomanSchema.Mixed) {
       // This is a mixed type reference, so we have to get the type from
       // the **reference**, not from the defined model type (Mixed)
@@ -488,6 +485,7 @@ function _decodeValue(context, type, data) {
 
       var outArr = [];
       for (var i = 0; i < data.length; ++i) {
+        // @ts-ignore
         outArr[i] = _decodeValue(context, type.type, data[i]);
       }
       return outArr;
@@ -498,6 +496,7 @@ function _decodeValue(context, type, data) {
       }
 
       var outObj = {};
+      // @ts-ignore
       _decodeFields(context, type.fields, outObj, data);
       return outObj;
     } else if (type instanceof ModelRef) {
@@ -516,7 +515,7 @@ function _decodeFields(context, fields, obj, data) {
         continue;
       }
 
-      var field = _findField(fields, i);
+      var field = findField(fields, i);
       if (!field) {
         throw new Error('Could not find schema field for `' + i + '`.');
       }
@@ -529,7 +528,7 @@ function _decodeFields(context, fields, obj, data) {
 function _decodeUserFields(context, fields, obj, data) {
   for (var i in data) {
     if (data.hasOwnProperty(i)) {
-      var field = _findField(fields, i);
+      var field = findField(fields, i);
       if (!field) {
         throw new Error('Could not find schema field for `' + i + '`.');
       }
@@ -559,6 +558,7 @@ function _decodeUserValue(context, type, data) {
 
     var outArr = [];
     for (var i = 0; i < data.length; ++i) {
+      // @ts-ignore
       outArr[i] = _decodeUserValue(context, type.type, data[i]);
     }
     return outArr;
@@ -569,16 +569,19 @@ function _decodeUserValue(context, type, data) {
     }
 
     var outObj = {};
+    // @ts-ignore
     _decodeUserFields(context, type.fields, outObj, data);
     return outObj;
   } else if (type instanceof ModelRef) {
+    // @ts-ignore
     var expectedType = context.typeByName(type.name);
 
+    // @ts-ignore
     if (type.name === 'Mixed' || expectedType === OttomanSchema.Mixed) {
       // Pass; mixed references are permitted.
     } else if (!(data instanceof expectedType)) {
-      throw new Error('Expected value to be a ModelInstance of type `' +
-        type.name + '`.');
+      // @ts-ignore
+      throw new Error('Expected value to be a ModelInstance of type `' + type.name + '`.');
     }
     return data;
   } else {
@@ -596,7 +599,7 @@ function _fieldTypeSearch(obj, pathObj, context) {
     if (pathObj.expression.type === 'string_literal') {
       return _fieldTypeSearchNamed(obj, pathObj.expression.value, context);
     } else if (pathObj.expression.type === 'wildcard') {
-      return _fieldTypeSearchWildcard(obj, context);
+      return _fieldTypeSearchWildcard(obj);
     } else {
       throw new Error('Unexpected subscript expression type.');
     }
@@ -664,7 +667,7 @@ OttomanSchema.prototype.execPreHandlers = function (event, mdlInst, callback) {
 
   var preHandlers = this.preHandlers[event];
   var i = 0;
-  var doNext = function _doNextPreHandler(err) {
+  var doNext = function _doNextPreHandler(err?) {
     // If any one of the pre-handlers fails, fail the whole thing.
     // This allows people to plug in additional validation.
     if (err) { return callback(err); }

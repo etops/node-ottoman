@@ -6,6 +6,7 @@ var Schema = require('./ottomanSchema');
 var _ = require('lodash');
 var lodashDeep = require('lodash-deep');
 _.mixin(lodashDeep);
+var findField = require('./_findField');
 
 type ModelDataType = {
   key: any,
@@ -176,14 +177,6 @@ ModelInstance.prototype.id = function () {
   return myId;
 };
 
-function _findField(fields, name) {
-  for (var i = 0; i < fields.length; ++i) {
-    if (fields[i].name === name) {
-      return fields[i];
-    }
-  }
-  return null;
-}
 
 function _encodeValue(context, type, value: any, forceTyping, f) {
   if (context.isModel(type)) {
@@ -210,7 +203,7 @@ function _encodeValue(context, type, value: any, forceTyping, f) {
     for (var j in value) {
       /* istanbul ignore else */
       if (value.hasOwnProperty(j)) {
-        var field = _findField(type.fields, j);
+        var field = findField(type.fields, j);
         if (!field) {
           throw new Error('Cannot find field data for property `' + j + '`.');
         }
