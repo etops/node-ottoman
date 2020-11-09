@@ -13,11 +13,22 @@ type ModelDataType = {
   data: any,
   cas: any
 };
+
+const isModelDataType = (variableToCheck: any): variableToCheck is ModelDataType =>
+  (variableToCheck as ModelDataType).cas !== undefined;
+
 function ModelData() {
   this.key = null;
   this.data = null;
   this.cas = null;
 }
+
+type ModelRefDataType = {
+  key: any,
+};
+
+const isModelRefData = (variableToCheck: any): variableToCheck is ModelRefDataType =>
+  (variableToCheck as ModelRefDataType).key !== undefined;
 
 function ModelRefData() {
   this.key = null;
@@ -45,13 +56,10 @@ function ModelInstance() {
   $.loaded = false;
   $.refKeys = [];
 
-  if (args.length === 1 && args[0] instanceof ModelData) {
-    // @ts-ignore
+  if (args.length === 1 && isModelDataType(args[0])) {
     $.key = args[0].key;
-    // @ts-ignore
     ModelInstance.applyData(this, args[0]);
-  } else if (args.length === 1 && args[0] instanceof ModelRefData) {
-    // @ts-ignore
+  } else if (args.length === 1 && isModelRefData(args[0])) {
     $.key = args[0].key;
   } else {
     $.schema.applyDefaultsToObject(this);
