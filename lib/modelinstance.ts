@@ -34,6 +34,15 @@ function ModelRefData() {
   this.key = null;
 }
 
+type ModelInstanceType = {
+  $: any,
+  id: any,
+  _toCoo: any
+};
+
+const isModelInstanceType = (variableToCheck: any): variableToCheck is ModelInstanceType =>
+  variableToCheck instanceof ModelInstance;
+
 /**
  * Constructs a new model instance and for models with a default constructor,
  * applies the data in object passed to the instance.
@@ -221,20 +230,16 @@ function _encodeValue(context, type, value: any, forceTyping, f) {
     }
     return outObj;
   } else if (type instanceof Schema.ModelRef) {
-    if (!(value instanceof ModelInstance)) {
+    if (!(isModelInstanceType(value))) {
       throw new Error('Expected ' + f.name + ' type to be a ModelInstance.');
     }
     // Values must match stated type names, unless the reference is to
     // 'Mixed', then any reference will do.
-    // @ts-ignore
     if (type.name !== value.$.schema.name && (type.name !== 'Mixed')) {
-      // @ts-ignore
       throw new Error('Expected type to be `' + type.name + '` (got `' + value.$.schema.name + '`)');
     }
     return {
-      // @ts-ignore
       '_type': value.$.schema.namePath(true),
-      // @ts-ignore
       '$ref': value.id()
     };
   } else if (type === Schema.DateType) {
@@ -249,8 +254,7 @@ function _encodeValue(context, type, value: any, forceTyping, f) {
       return null;
     }
   } else if (type === Schema.MixedType) {
-    if (value instanceof ModelInstance) {
-      // @ts-ignore
+    if (isModelInstanceType(value)) {
       return value._toCoo(type.name, forceTyping);
     } else if (value instanceof Date) {
       return {

@@ -29,6 +29,13 @@ var boolCoreType = new CoreType('boolean');
 var dateCoreType = new CoreType('Date');
 var mixedCoreType = new CoreType('Mixed');
 
+type ModelRefType = {
+  name: any,
+};
+
+const isModelRefType = (variableToCheck: any): variableToCheck is ModelRefType =>
+  variableToCheck instanceof ModelRef;
+
 function ModelRef(name) {
   this.name = name;
 }
@@ -40,7 +47,7 @@ type ListFieldType = {
   type: any,
 };
 
-// todo add instance of check
+// todo replace these simple checks with classes
 const isListFieldType = (variableToCheck: any): variableToCheck is ListFieldType =>
   variableToCheck instanceof ListField;
 
@@ -414,7 +421,7 @@ function _fieldSearch(context, fields, name) {
           return field.type.schema.field(parts.join('.'));
         } else if (isFieldGroupType(field.type)) {
           return _fieldSearch(context, field.type.fields, parts.join('.'));
-        } else if (field.type instanceof ModelRef) {
+        } else if (isModelRefType(field.type)) {
           throw new Error('Path cannot refer through reference type.');
         } else {
           throw new Error('Invalid path specified.');
@@ -461,7 +468,7 @@ function _fieldTypeSearchWildcard(obj) {
 
 function _decodeValue(context, type, data) {
   if (data instanceof Object && data.$ref) {
-    if (!(type instanceof ModelRef)) {
+    if (!(isModelRefType(type))) {
       throw new Error(
         'Field looks like a reference, but model does not agree!');
     }
@@ -469,10 +476,10 @@ function _decodeValue(context, type, data) {
     var modelType = context.typeByName(type.name);
     // TODO: This should probably be checked earlier than this!
     if (!modelType) {
-      // @ts-ignore
       throw new Error('Invalid type specified (' + type.name + ')');
     }
 
+    // OttomanSchema.Mixed is not defined, either author meant MixedType or it comes from OW-back
     // @ts-ignore
     if ((modelType.type && modelType.type === 'Mixed') || modelType === OttomanSchema.Mixed) {
       // This is a mixed type reference, so we have to get the type from
@@ -511,7 +518,6 @@ function _decodeValue(context, type, data) {
 
       var outArr = [];
       for (var i = 0; i < data.length; ++i) {
-        // @ts-ignore
         outArr[i] = _decodeValue(context, type.type, data[i]);
       }
       return outArr;
@@ -522,7 +528,6 @@ function _decodeValue(context, type, data) {
       }
 
       var outObj = {};
-      // @ts-ignore
       _decodeFields(context, type.fields, outObj, data);
       return outObj;
     } else if (type instanceof ModelRef) {
@@ -584,7 +589,6 @@ function _decodeUserValue(context, type, data) {
 
     var outArr = [];
     for (var i = 0; i < data.length; ++i) {
-      // @ts-ignore
       outArr[i] = _decodeUserValue(context, type.type, data[i]);
     }
     return outArr;
@@ -595,18 +599,16 @@ function _decodeUserValue(context, type, data) {
     }
 
     var outObj = {};
-    // @ts-ignore
     _decodeUserFields(context, type.fields, outObj, data);
     return outObj;
-  } else if (type instanceof ModelRef) {
-    // @ts-ignore
-    var expectedType = context.typeByName(type.name);
+  } else if (isModelRefType(type)) {
 
+    var expectedType = context.typeByName(type.name);
+    // OttomanSchema.Mixed is not defined, either author meant MixedType or it comes from OW-back
     // @ts-ignore
     if (type.name === 'Mixed' || expectedType === OttomanSchema.Mixed) {
       // Pass; mixed references are permitted.
     } else if (!(data instanceof expectedType)) {
-      // @ts-ignore
       throw new Error('Expected value to be a ModelInstance of type `' + type.name + '`.');
     }
     return data;
