@@ -36,6 +36,14 @@ ModelRef.prototype.inspect = function () {
   return 'ModelRef(' + this.name + ')';
 };
 
+type ListFieldType = {
+  type: any,
+};
+
+// todo add instance of check
+const isListFieldType = (variableToCheck: any): variableToCheck is ListFieldType =>
+  variableToCheck instanceof ListField;
+
 function ListField(type) {
   this.type = type;
 }
@@ -50,6 +58,13 @@ function SchemaField() {
   this.default = undefined;
   this.validator = null;
 }
+
+type FieldGroupType = {
+  fields: any,
+};
+
+const isFieldGroupType = (variableToCheck: any): variableToCheck is FieldGroupType =>
+  variableToCheck instanceof FieldGroup;
 
 function FieldGroup() {
   this.fields = [];
@@ -109,6 +124,21 @@ function ViewQueryFn() {
   this.consistency = StoreAdapter.SearchConsistency.NONE;
 }
 
+type OttomanSchemaType = {
+  context: any,
+  name: any,
+  fields: any,
+  idField: any,
+  indices: any,
+  indexFns: any,
+  queryFns: any,
+  preHandlers: any,
+  postHandlers: any
+};
+
+const isOttomanSchemaType = (variableToCheck: any): variableToCheck is OttomanSchemaType =>
+  variableToCheck instanceof OttomanSchema;
+
 function OttomanSchema(context) {
   this.context = context;
   this.name = '';
@@ -145,7 +175,7 @@ OttomanSchema.prototype._validate = function (mdlInst) {
     }
     if (field.validator) {
       field.validator(current);
-    } else if (field.type instanceof FieldGroup) {
+    } else if (isFieldGroupType(field.type)) {
       for (var j = 0; j < field.type.fields.length; ++j) {
         var child = field.type.fields[j];
         validateTree(child, current);
@@ -382,7 +412,7 @@ function _fieldSearch(context, fields, name) {
         if (context.isModel(field.type)) {
           // TODO: This may not actually be good to have here...
           return field.type.schema.field(parts.join('.'));
-        } else if (field.type instanceof FieldGroup) {
+        } else if (isFieldGroupType(field.type)) {
           return _fieldSearch(context, field.type.fields, parts.join('.'));
         } else if (field.type instanceof ModelRef) {
           throw new Error('Path cannot refer through reference type.');
@@ -412,11 +442,9 @@ function _fieldTypeSearchNamed(obj, fieldName, context) {
     return _fieldTypeSearchNamed(obj.schema, fieldName, context);
   }
 
-  if (obj instanceof OttomanSchema) {
-    // @ts-ignore
+  if (isOttomanSchemaType(obj)) {
     return _fieldTypeSearchNamedFields(obj.fields, fieldName);
-  } else if (obj instanceof FieldGroup) {
-    // @ts-ignore
+  } else if (isFieldGroupType(obj)) {
     return _fieldTypeSearchNamedFields(obj.fields, fieldName);
   } else {
     throw new Error('Unexpected pathing object type.');
@@ -424,8 +452,7 @@ function _fieldTypeSearchNamed(obj, fieldName, context) {
 }
 
 function _fieldTypeSearchWildcard(obj) {
-  if (obj instanceof ListField) {
-    // @ts-ignore
+  if (isListFieldType(obj)) {
     return obj.type;
   } else {
     throw new Error('Path does not match Schema for wildcard array access.');
@@ -439,7 +466,6 @@ function _decodeValue(context, type, data) {
         'Field looks like a reference, but model does not agree!');
     }
 
-    // @ts-ignore
     var modelType = context.typeByName(type.name);
     // TODO: This should probably be checked earlier than this!
     if (!modelType) {
@@ -477,7 +503,7 @@ function _decodeValue(context, type, data) {
       }
     } else if (context.isModel(type)) {
       return type.fromData(data);
-    } else if (type instanceof ListField) {
+    } else if (isListFieldType(type)) {
       if (!Array.isArray(data)) {
         throw new Error(
           'Encountered a list field, but the data does not agree!');
@@ -489,7 +515,7 @@ function _decodeValue(context, type, data) {
         outArr[i] = _decodeValue(context, type.type, data[i]);
       }
       return outArr;
-    } else if (type instanceof FieldGroup) {
+    } else if (isFieldGroupType(type)) {
       if (typeof data !== 'object') {
         throw new Error(
           'Encountered a group field, but the data does not agree!');
@@ -550,7 +576,7 @@ function _decodeUserValue(context, type, data) {
   } else if (context.isModel(type)) {
     var TypeCtor = type;
     return new TypeCtor(data);
-  } else if (type instanceof ListField) {
+  } else if (isListFieldType(type)) {
     if (!Array.isArray(data)) {
       throw new Error(
         'Encountered a list field, but the data does not agree!');
@@ -562,7 +588,7 @@ function _decodeUserValue(context, type, data) {
       outArr[i] = _decodeUserValue(context, type.type, data[i]);
     }
     return outArr;
-  } else if (type instanceof FieldGroup) {
+  } else if (isFieldGroupType(type)) {
     if (!(data instanceof Object)) {
       throw new Error(
         'Encountered a group field, but the data does not agree!');
@@ -633,9 +659,9 @@ OttomanSchema.prototype.applyDefaultsToObject = function (obj) {
   for (var i = 0; i < this.fields.length; ++i) {
     var field = this.fields[i];
 
-    if (field.type instanceof FieldGroup) {
+    if (isFieldGroupType(field.type)) {
       obj[field.name] = field.type.create();
-    } else if (field.type instanceof ListField) {
+    } else if (isListFieldType(field.type)) {
       obj[field.name] = [];
     } else {
       if (field.default instanceof Function) {

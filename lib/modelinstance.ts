@@ -15,7 +15,7 @@ type ModelDataType = {
 };
 
 const isModelDataType = (variableToCheck: any): variableToCheck is ModelDataType =>
-  (variableToCheck as ModelDataType).cas !== undefined;
+  variableToCheck instanceof ModelData;
 
 function ModelData() {
   this.key = null;
@@ -28,7 +28,7 @@ type ModelRefDataType = {
 };
 
 const isModelRefData = (variableToCheck: any): variableToCheck is ModelRefDataType =>
-  (variableToCheck as ModelRefDataType).key !== undefined;
+  variableToCheck instanceof ModelRefData;
 
 function ModelRefData() {
   this.key = null;
