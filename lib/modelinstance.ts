@@ -3,9 +3,8 @@
 var util = require('util');
 var jsonpath = require('jsonpath');
 var Schema = require('./ottomanSchema');
-var _ = require('lodash');
+import * as _ from "lodash";
 var lodashDeep = require('lodash-deep');
-_.mixin(lodashDeep);
 var findField = require('./_findField');
 
 type ModelDataType = {
@@ -344,7 +343,7 @@ ModelInstance.prototype.toJSON = function () {
   // representation; so we choose this because it's familiar to js devs, and
   // extensible; in later versions of ottoman you can add a bucket designator in
   // mongoose's $db key
-  _.deepMapValues(val, function (value, path) {
+  lodashDeep.deepMapValues(val, function (value, path) {
     // References in toCoo normally looks like this:
     // { $ref: 'some-model-id', _type: 'ModelName' }
     // Would prefer .endsWith over this match, but not available until es6.
