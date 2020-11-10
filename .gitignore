@@ -2,3 +2,4 @@
 /coverage/
 /apidocs/
 .npmrc
+/build/
