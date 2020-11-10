@@ -7,7 +7,7 @@
     "json",
     "document"
   ],
-  "main": "./build/lib/ottoman",
+  "main": "./build/lib/ottoman.js",
   "files": ["build/**/*"],
   "license": "Apache2",
   "name": "@etops/ottoman",
