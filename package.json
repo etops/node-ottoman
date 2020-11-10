@@ -8,7 +8,7 @@
     "document"
   ],
   "main": "./build/lib/ottoman.js",
-  "files": ["build/**/*"],
+  "files": ["lib/*"],
   "license": "Apache2",
   "name": "@etops/ottoman",
   "scripts": {
