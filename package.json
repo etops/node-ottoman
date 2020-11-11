@@ -9,7 +9,8 @@
   ],
   "main": "./build/lib/ottoman.js",
   "files": [
-    "lib/**/*"
+    "lib/**/*",
+    "tsconfig.json"
   ],
   "license": "Apache2",
   "name": "@etops/ottoman",
