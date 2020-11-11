@@ -34,7 +34,7 @@
     "couchbase": "^2.6.11"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.14",
+    "@types/chai": "^3.5.2",
     "@types/couchbase": "^2.4.2",
     "@types/eslint": "^7.2.4",
     "@types/istanbul": "~0.4.30",
@@ -46,7 +46,7 @@
     "@types/uuid": "~3.3.28",
     "@typescript-eslint/eslint-plugin": "^4.7.0",
     "@typescript-eslint/parser": "^4.7.0",
-    "chai": "^4.2.0",
+    "chai": "^3.4.1",
     "eslint": "^7.13.0",
     "ink-docstrap": "git+https://github.com/brett19/docstrap.git#master",
     "istanbul": "~0.4.5",
