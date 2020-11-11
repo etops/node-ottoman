@@ -9,13 +9,14 @@
   ],
   "main": "./build/lib/ottoman.js",
   "files": [
-    "build/**/*"
+    "./lib/*"
   ],
   "license": "Apache2",
   "name": "@etops/ottoman",
   "scripts": {
     "build": "tsc",
     "prepublish": "npm run build",
+    "postinstall": "npm run build ",
     "test": "NODE_ENV=test TS_NODE_PROJECT='./tsconfig.json' ./node_modules/mocha/bin/_mocha --require ts-node/register --colors './test/*.test.ts' --exit",
     "tsc:w": "tsc -w",
     "lint": "eslint ./lib --ext .ts"
