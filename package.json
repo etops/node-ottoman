@@ -15,6 +15,7 @@
   "name": "@etops/ottoman",
   "scripts": {
     "build": "tsc",
+    "prepublish": "npm run build",
     "test": "NODE_ENV=test TS_NODE_PROJECT='./tsconfig.json' ./node_modules/mocha/bin/_mocha --require ts-node/register --colors './test/*.test.ts' --exit",
     "tsc:w": "tsc -w",
     "lint": "eslint ./lib --ext .ts"
@@ -50,5 +51,5 @@
     "type": "git",
     "url": "http://github.com/etops/node-ottoman.git"
   },
-  "version": "1.0.11"
+  "version": "1.0.10"
 }

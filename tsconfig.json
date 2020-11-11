@@ -2,8 +2,8 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es5",
-    "outDir": "build",                        /* Redirect output structure to the directory. */
-    "rootDir": ".",                         /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
+    "outDir": "build",
+    "rootDir": ".",
     "sourceMap": true
   },
   "exclude": [
