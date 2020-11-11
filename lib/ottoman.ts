@@ -7,9 +7,6 @@ var cbStoreAdapter = require('./cbstoreadapter');
 var mockStoreAdapter = require('./mockstoreadapter');
 var ModelInstance = require('./modelinstance');
 var autofns = require('./autofns');
-/*
-var _ = require('lodash');
-*/
 import * as _ from "lodash";
 /**
  * The data definition for a typedef object.  Typedef's are

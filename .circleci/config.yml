@@ -59,7 +59,7 @@ jobs:
               exit 1;
             fi
       - run:
-          name: Run linter TODO change to ts-lint
+          name: Run linter
           command: npm run lint
 
       - run:
