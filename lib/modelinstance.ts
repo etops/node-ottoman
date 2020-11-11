@@ -604,7 +604,7 @@ ModelInstance.prototype.load = function () {
 
   function loadSubItem() {
     if (loadItems.length === 0) {
-      // @ts-ignore
+      // @ts-expect-error
       finalCallback(null);
       return;
     }
@@ -644,7 +644,7 @@ ModelInstance.prototype.load = function () {
       var key = _modelKey(self);
       $.schema.store.get(key, function (err, data, cas) {
         if (err) {
-          // @ts-ignore
+          // @ts-expect-error
           finalCallback(err);
           return;
         }

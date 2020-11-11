@@ -480,7 +480,7 @@ function _decodeValue(context, type, data) {
     }
 
     // OttomanSchema.Mixed is not defined, either author meant MixedType or it comes from OW-back
-    // @ts-ignore
+    // @ts-expect-error
     if ((modelType.type && modelType.type === 'Mixed') || modelType === OttomanSchema.Mixed) {
       // This is a mixed type reference, so we have to get the type from
       // the **reference**, not from the defined model type (Mixed)
@@ -605,7 +605,7 @@ function _decodeUserValue(context, type, data) {
 
     var expectedType = context.typeByName(type.name);
     // OttomanSchema.Mixed is not defined, either author meant MixedType or it comes from OW-back
-    // @ts-ignore
+    // @ts-expect-error
     if (type.name === 'Mixed' || expectedType === OttomanSchema.Mixed) {
       // Pass; mixed references are permitted.
     } else if (!(data instanceof expectedType)) {
