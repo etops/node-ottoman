@@ -60,7 +60,7 @@ jobs:
             fi
       - run:
           name: Run linter TODO change to ts-lint
-          command: node -e 'console.log(process.env.CNCSTR)'
+          command: npm run lint
 
       - run:
           name: Start couchbase
