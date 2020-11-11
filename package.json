@@ -9,8 +9,7 @@
   ],
   "main": "./build/lib/ottoman.js",
   "files": [
-    "lib/**/*",
-    "tsconfig.json"
+    "build/**/*"
   ],
   "license": "Apache2",
   "name": "@etops/ottoman",
@@ -34,19 +33,12 @@
     "couchbase": "^2.6.11"
   },
   "devDependencies": {
-    "@types/chai": "^3.5.2",
-    "@types/couchbase": "^2.4.2",
-    "@types/eslint": "^7.2.4",
-    "@types/istanbul": "~0.4.30",
-    "@types/jsonpath": "^0.2.0",
     "@types/lodash": "^4.14.165",
-    "@types/lodash-deep": "^2.0.1",
     "@types/mocha": "^8.0.3",
     "@types/node": "^14.14.6",
-    "@types/uuid": "~3.3.28",
     "@typescript-eslint/eslint-plugin": "^4.7.0",
     "@typescript-eslint/parser": "^4.7.0",
-    "chai": "^3.4.1",
+    "chai": "^4.2.0",
     "eslint": "^7.13.0",
     "ink-docstrap": "git+https://github.com/brett19/docstrap.git#master",
     "istanbul": "~0.4.5",
