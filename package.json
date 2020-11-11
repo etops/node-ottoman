@@ -9,7 +9,7 @@
   ],
   "main": "./build/lib/ottoman.js",
   "files": [
-    "./lib/*"
+    "lib/**/*"
   ],
   "license": "Apache2",
   "name": "@etops/ottoman",
