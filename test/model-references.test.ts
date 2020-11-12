@@ -1,4 +1,5 @@
 'use strict';
+var chai = require('chai');
 var expect = chai.expect;
 var H = require('./harness');
 var ottoman = H.lib;
