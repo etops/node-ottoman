@@ -1,6 +1,5 @@
 'use strict';
 
-var chai = require('chai');
 var expect = chai.expect;
 var assert = require('chai').assert;
 var H = require('./harnessMultipleOttoman');
