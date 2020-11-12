@@ -1,1 +1,0 @@
-{"version":3,"file":"autofns.js","sourceRoot":"","sources":["../../lib/autofns.ts"],"names":[],"mappings":"AAAA,YAAY,CAAC;AAEb,IAAI,IAAI,GAAG,OAAO,CAAC,MAAM,CAAC,CAAC;AAE3B,SAAS,WAAW;IAClB,OAAO,IAAI,CAAC,EAAE,EAAE,CAAC;AACnB,CAAC;AAED,MAAM,CAAC,OAAO,GAAG;IACf,IAAI,EAAE,WAAW;CAClB,CAAC"}
