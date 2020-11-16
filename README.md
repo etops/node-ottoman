@@ -371,6 +371,20 @@ Customer.find(filters, options,
   });
 ```
 
+## Tests
+
+When you write a test, please think about ensuring consistency on your queries. You will help us to prevent losing time from debugging randomly failing/passing tests.
+Here you can find a common mistake, when someone is writing a [test for node ottoman](https://github.com/couchbaselabs/node-ottoman/issues/111).
+
+### FromCoo
+
+This function is not used in ow-back nor in node-ottoman, it might make sense to delete it or at least all the tests for it.
+
+### Ottoman connections not closing
+
+Ottoman connections, created by `H.setupOttoman`, are still running when all tests are finished.
+Here is the [issue](https://github.com/couchbaselabs/node-ottoman/issues/186), which links to an open issue in SDK.
+This was solved by adding `--exit` to mocha script in package.json.
 
 ## License
 
