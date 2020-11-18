@@ -247,28 +247,31 @@ function _encodeValue(context, type, value: any, forceTyping, f) {
       + (typeof value);
     if (value === null || value === undefined) {
       return value;
-    } else if (value instanceof Date && isFinite(value)) {
-      return value.toISOString();
-    } else if (typeof value === 'string' || value instanceof String) {
-      if (value === '' ) { // This is here for support of legacy code
-        return null
-      } else {
-        try {
-          value = new Date(value);
-          return value.toISOString();
-        } catch (err) {
-          throw new Error(schemaDateTypeErrorString);
-        }
-      }
-    } else if (typeof value === 'number') {
-      throw new Error(schemaDateTypeErrorString);
-    } else {
-      try {
-        value = new Date(value);
-        return value.toISOString();
-      } catch (err) {
-        throw new Error(schemaDateTypeErrorString);
-      }
+    } else { // @ts-expect-error
+      if (value instanceof Date && isFinite(value)) {
+            return value.toISOString();
+          } else if (typeof value === 'string' || value instanceof String) {
+            if (value === '' ) { // This is here for support of legacy code
+              return null
+            } else {
+              try {
+                // @ts-expect-error
+                value = new Date(value);
+                return value.toISOString();
+              } catch (err) {
+                throw new Error(schemaDateTypeErrorString);
+              }
+            }
+          } else if (typeof value === 'number') {
+            throw new Error(schemaDateTypeErrorString);
+          } else {
+            try {
+              value = new Date(value);
+              return value.toISOString();
+            } catch (err) {
+              throw new Error(schemaDateTypeErrorString);
+            }
+          }
     }
   } else if (type === Schema.MixedType) {
     if (isModelInstanceType(value)) {

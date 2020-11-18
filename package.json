@@ -8,9 +8,6 @@
     "document"
   ],
   "main": "./build/lib/ottoman.js",
-  "files": [
-    "build/**/*"
-  ],
   "license": "Apache2",
   "name": "@etops/ottoman",
   "scripts": {
@@ -51,5 +48,5 @@
     "type": "git",
     "url": "http://github.com/etops/node-ottoman.git"
   },
-  "version": "1.0.10"
+  "version": "1.0.11"
 }

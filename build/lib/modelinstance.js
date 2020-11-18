@@ -213,16 +213,43 @@ function _encodeValue(context, type, value, forceTyping, f) {
         };
     }
     else if (type === Schema.DateType) {
-        if (!(value instanceof Date)) {
-            // throw new Error('Expected ' + f.name + ' type to be a Date.');
-            value = new Date(value);
+        var schemaDateTypeErrorString = 'Expected ' + f.name + ' type to be a' +
+            ' null | undefined | Date | Date string | Empty string, but got '
+            + (typeof value);
+        if (value === null || value === undefined) {
+            return value;
         }
-        try {
-            return value.toISOString();
-        }
-        catch (err) {
-            console.error('Invalid date ' + value + ' in ' + f.name);
-            return null;
+        else { // @ts-ignore
+            if (value instanceof Date && isFinite(value)) {
+                return value.toISOString();
+            }
+            else if (typeof value === 'string' || value instanceof String) {
+                if (value === '') { // This is here for support of legacy code
+                    return null;
+                }
+                else {
+                    try {
+                        // @ts-ignore
+                        value = new Date(value);
+                        return value.toISOString();
+                    }
+                    catch (err) {
+                        throw new Error(schemaDateTypeErrorString);
+                    }
+                }
+            }
+            else if (typeof value === 'number') {
+                throw new Error(schemaDateTypeErrorString);
+            }
+            else {
+                try {
+                    value = new Date(value);
+                    return value.toISOString();
+                }
+                catch (err) {
+                    throw new Error(schemaDateTypeErrorString);
+                }
+            }
         }
     }
     else if (type === Schema.MixedType) {
@@ -551,7 +578,7 @@ ModelInstance.prototype.load = function () {
     var $ = self.$;
     function loadSubItem() {
         if (loadItems.length === 0) {
-            // @ts-ignore
+            // @ts-expect-error
             finalCallback(null);
             return;
         }
@@ -586,7 +613,7 @@ ModelInstance.prototype.load = function () {
             var key = _modelKey(self);
             $.schema.store.get(key, function (err, data, cas) {
                 if (err) {
-                    // @ts-ignore
+                    // @ts-expect-error
                     finalCallback(err);
                     return;
                 }
