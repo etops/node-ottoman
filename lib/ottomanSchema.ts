@@ -503,11 +503,7 @@ function _decodeValue(context, type, data) {
     return type.fromData(data);
   } else {
     if (type instanceof CoreType) {
-      if (type === dateCoreType) {
-        return new Date(data);
-      } else {
-        return data;
-      }
+      return data;
     } else if (context.isModel(type)) {
       return type.fromData(data);
     } else if (isListFieldType(type)) {
@@ -573,11 +569,7 @@ function _decodeUserFields(context, fields, obj, data) {
 
 function _decodeUserValue(context, type, data) {
   if (type instanceof CoreType) {
-    if (type === dateCoreType) {
-      return new Date(data);
-    } else {
-      return data;
-    }
+    return data;
   } else if (context.isModel(type)) {
     var TypeCtor = type;
     return new TypeCtor(data);
