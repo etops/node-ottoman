@@ -219,7 +219,7 @@ function _encodeValue(context, type, value, forceTyping, f) {
         if (value === null || value === undefined) {
             return value;
         }
-        else { // @ts-ignore
+        else { // @ts-expect-error
             if (value instanceof Date && isFinite(value)) {
                 return value.toISOString();
             }
@@ -229,7 +229,7 @@ function _encodeValue(context, type, value, forceTyping, f) {
                 }
                 else {
                     try {
-                        // @ts-ignore
+                        // @ts-expect-error
                         value = new Date(value);
                         return value.toISOString();
                     }
