@@ -2,7 +2,7 @@
 
 var util = require('util');
 var ottopath = require('./ottopath');
-var StoreAdapter = require('./storeadapter');
+var StoreAdapter = require('./ottomanStoreadapter');
 
 var builtinCouchbase;
 try {
@@ -635,7 +635,7 @@ CbStoreAdapter.prototype.searchIndex =
  * @private
  * @ignore
  */
-function _buildFilterExprs(filters, expressions, root) {
+function _buildFilterExprs(filters, expressions, root?) {
   var SPECIAL_KEYS = ['$exists', '$missing', '$contains', '$like'];
   var BOOLEAN = ['or', 'and'];
   if (!root) {

@@ -1,14 +1,13 @@
 'use strict';
 
 var util = require('util');
-var Schema = require('./schema');
-var StoreAdapter = require('./storeadapter');
-var CbStoreAdapter = require('./cbstoreadapter');
-var MockStoreAdapter = require('./mockstoreadapter');
+var Schema = require('./ottomanSchema');
+var StoreAdapter = require('./ottomanStoreadapter');
+var cbStoreAdapter = require('./cbstoreadapter');
+var mockStoreAdapter = require('./mockstoreadapter');
 var ModelInstance = require('./modelinstance');
 var autofns = require('./autofns');
-var _ = require('lodash');
-
+import * as _ from "lodash";
 /**
  * The data definition for a typedef object.  Typedef's are
  * simply aliases for other types.
@@ -25,10 +24,7 @@ function TypeDef() {
  *
  * @constructor
  */
-function Ottoman(options) {
-  if (!options) {
-    options = {};
-  }
+function Ottoman(options: any = {}) {
 
   this.namespace = null;
   this.store = null;
@@ -471,7 +467,7 @@ Ottoman.prototype._findModelsByDefIndex =
     var mdlName = schema.namePath(true);
     var idxName = schema.indexName(fields);
 
-    var indexOpts = {};
+    var indexOpts: any = {};
 
     indexOpts.key = [];
     for (var i = 0; i < values.length; ++i) {
@@ -606,7 +602,7 @@ Ottoman.prototype._countModels = function (model, filter, options, callback) {
 /**
  * Normalizes a filter structure by replacing ModelInstance
  * objects with a $ref that can be passed through to n1ql.
- * @param a filter object, such as what is passed to _findModels
+ * @param filter object, such as what is passed to _findModels
  * @private
  * @ignore
  */
@@ -649,7 +645,7 @@ Ottoman.prototype._findModels = function (model, filter, options, callback) {
   var schema = model.schema;
   var mdlName = schema.namePath(true);
 
-  var findOpts = { filter: this._normFilter(filter) };
+  var findOpts: any = { filter: this._normFilter(filter) };
   for (var i in options) {
     if (options.hasOwnProperty(i)) {
       findOpts[i] = options[i];
@@ -716,7 +712,7 @@ Ottoman.prototype._findModelsByQuery =
         'Cannot use query without the other type being registered first!');
     }
 
-    var options = {};
+    var options: any = {};
     if (query.consistency !== undefined) {
       options.consistency = query.consistency;
     }
@@ -1122,8 +1118,8 @@ Ottoman.loadAll = ModelInstance.loadAll;
 var ottoman = new Ottoman();
 ottoman.Ottoman = Ottoman;
 ottoman.StoreAdapter = StoreAdapter;
-ottoman.StoreAdapter.Couchbase = CbStoreAdapter;
-ottoman.StoreAdapter.Mock = MockStoreAdapter;
+ottoman.StoreAdapter.Couchbase = cbStoreAdapter;
+ottoman.StoreAdapter.Mock = mockStoreAdapter;
 ottoman.CbStoreAdapter = ottoman.StoreAdapter.Couchbase;
 ottoman.MockStoreAdapter = ottoman.StoreAdapter.Mock;
 ottoman.Consistency = StoreAdapter.SearchConsistency;

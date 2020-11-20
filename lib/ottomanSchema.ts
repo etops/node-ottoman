@@ -2,15 +2,15 @@
 
 var util = require('util');
 var ottopath = require('./ottopath');
-var StoreAdapter = require('./storeadapter');
+var StoreAdapter = require('./ottomanStoreadapter');
+var findField = require('./_findField');
 
-var SearchConsistency = StoreAdapter.SearchConsistency;
 
 /**
  * A validator function validates a Schema field to ensure it
  * matches the expected traits.
  *
- * @typedef {function} Schema.Validator
+ * @typedef {function} OttomanSchema.Validator
  *
  * @param {*} value
  *  The value of the property being validated.
@@ -29,12 +29,27 @@ var boolCoreType = new CoreType('boolean');
 var dateCoreType = new CoreType('Date');
 var mixedCoreType = new CoreType('Mixed');
 
+type ModelRefType = {
+  name: any,
+};
+
+const isModelRefType = (variableToCheck: any): variableToCheck is ModelRefType =>
+  variableToCheck instanceof ModelRef;
+
 function ModelRef(name) {
   this.name = name;
 }
 ModelRef.prototype.inspect = function () {
   return 'ModelRef(' + this.name + ')';
 };
+
+type ListFieldType = {
+  type: any,
+};
+
+// todo replace these simple checks with classes
+const isListFieldType = (variableToCheck: any): variableToCheck is ListFieldType =>
+  variableToCheck instanceof ListField;
 
 function ListField(type) {
   this.type = type;
@@ -50,6 +65,13 @@ function SchemaField() {
   this.default = undefined;
   this.validator = null;
 }
+
+type FieldGroupType = {
+  fields: any,
+};
+
+const isFieldGroupType = (variableToCheck: any): variableToCheck is FieldGroupType =>
+  variableToCheck instanceof FieldGroup;
 
 function FieldGroup() {
   this.fields = [];
@@ -91,13 +113,13 @@ function SchemaIndexFn() {
   this.type = null;
   this.name = null;
   this.fields = null;
-  this.consistency = SearchConsistency.NONE;
+  this.consistency = StoreAdapter.SearchConsistency.NONE;
 }
 
 function RefDocIndexFn() {
   SchemaIndexFn.call(this);
   this.type = 'refdoc';
-  this.consistency = SearchConsistency.GLOBAL;
+  this.consistency = StoreAdapter.SearchConsistency.GLOBAL;
 }
 util.inherits(RefDocIndexFn, SchemaIndexFn);
 
@@ -106,11 +128,25 @@ function ViewQueryFn() {
   this.name = null;
   this.of = '';
   this.field = null;
-  this.consistency = SearchConsistency.NONE;
+  this.consistency = StoreAdapter.SearchConsistency.NONE;
 }
 
+type OttomanSchemaType = {
+  context: any,
+  name: any,
+  fields: any,
+  idField: any,
+  indices: any,
+  indexFns: any,
+  queryFns: any,
+  preHandlers: any,
+  postHandlers: any
+};
 
-function Schema(context) {
+const isOttomanSchemaType = (variableToCheck: any): variableToCheck is OttomanSchemaType =>
+  variableToCheck instanceof OttomanSchema;
+
+function OttomanSchema(context) {
   this.context = context;
   this.name = '';
   this.fields = [];
@@ -122,7 +158,7 @@ function Schema(context) {
   this.postHandlers = {};
 }
 
-Schema.prototype.namePath = function (typeOnly) {
+OttomanSchema.prototype.namePath = function (typeOnly) {
   if (typeOnly) {
     return this.name;
   }
@@ -135,7 +171,7 @@ Schema.prototype.namePath = function (typeOnly) {
 };
 
 // This function is private so the API can run the pre/post handlers
-Schema.prototype._validate = function (mdlInst) {
+OttomanSchema.prototype._validate = function (mdlInst) {
   // Anything which is a fieldGroup causes a DFS of the trees to validate
   // any validators which are child elements in the tree
   var validateTree = function(field, instSubTree) {
@@ -146,7 +182,7 @@ Schema.prototype._validate = function (mdlInst) {
     }
     if (field.validator) {
       field.validator(current);
-    } else if (field.type instanceof FieldGroup) {
+    } else if (isFieldGroupType(field.type)) {
       for (var j = 0; j < field.type.fields.length; ++j) {
         var child = field.type.fields[j];
         validateTree(child, current);
@@ -159,7 +195,7 @@ Schema.prototype._validate = function (mdlInst) {
   }
 };
 
-Schema.prototype.validate = function (mdlInst, callback) {
+OttomanSchema.prototype.validate = function (mdlInst, callback) {
   var self = this;
   this.execPreHandlers('validate', mdlInst, function (err) {
     if (err) {
@@ -178,7 +214,7 @@ Schema.prototype.validate = function (mdlInst, callback) {
   });
 };
 
-Schema.prototype.indexName = function (fields) {
+OttomanSchema.prototype.indexName = function (fields) {
   var fieldKeys = [];
   for (var i = 0; i < fields.length; ++i) {
     fieldKeys.push(fields[i].replace(/\./g, '::'));
@@ -186,15 +222,15 @@ Schema.prototype.indexName = function (fields) {
   return this.namePath(false) + '$' + fieldKeys.join('$');
 };
 
-Schema.prototype.refKeyPrefix = function (fields) {
+OttomanSchema.prototype.refKeyPrefix = function (fields) {
   return '$' + this.indexName(fields);
 };
 
-Schema.prototype.refKey = function (fields, values) {
+OttomanSchema.prototype.refKey = function (fields, values) {
   return this.refKeyPrefix(fields) + '|' + values.join('|');
 };
 
-Schema.prototype.refKeys = function (mdl) {
+OttomanSchema.prototype.refKeys = function (mdl) {
   // Find all the refkey indexes associated with this model.
   var refIndices = [];
   for (var k = 0; k < this.indices.length; ++k) {
@@ -242,7 +278,7 @@ Schema.prototype.refKeys = function (mdl) {
 };
 
 
-Schema.prototype.addIndex = function (index) {
+OttomanSchema.prototype.addIndex = function (index) {
   for (var i = 0; i < this.indices.length; ++i) {
     var oldIndex = this.indices[i];
     if (_matchIndexes(oldIndex, index)) {
@@ -253,7 +289,7 @@ Schema.prototype.addIndex = function (index) {
   this.indices.push(index);
 };
 
-Schema.prototype.addDefIndexFn = function (name, indexDef) {
+OttomanSchema.prototype.addDefIndexFn = function (name, indexDef) {
   var fields = indexDef.by;
   if (!Array.isArray(fields)) {
     fields = [fields];
@@ -273,14 +309,14 @@ Schema.prototype.addDefIndexFn = function (name, indexDef) {
   this.indexFns.push(rdifn);
 };
 
-Schema.prototype.addRefDocIndexFn = function (name, indexDef) {
+OttomanSchema.prototype.addRefDocIndexFn = function (name, indexDef) {
   var fields = indexDef.by;
   if (!Array.isArray(fields)) {
     fields = [fields];
   }
 
   if (indexDef.consistency !== undefined &&
-    indexDef.consistency !== SearchConsistency.GLOBAL) {
+    indexDef.consistency !== StoreAdapter.SearchConsistency.GLOBAL) {
     throw new Error('Cannot define refdoc index with non-global consistency.');
   }
 
@@ -295,7 +331,7 @@ Schema.prototype.addRefDocIndexFn = function (name, indexDef) {
   this.indexFns.push(rdifn);
 };
 
-Schema.prototype.addIndexFn = function (name, indexDef) {
+OttomanSchema.prototype.addIndexFn = function (name, indexDef) {
   if (!indexDef.type) {
     indexDef.type = 'view';
   }
@@ -306,7 +342,7 @@ Schema.prototype.addIndexFn = function (name, indexDef) {
   }
 };
 
-Schema.prototype._tryAddDefQueryFn = function (name, queryDef) {
+OttomanSchema.prototype._tryAddDefQueryFn = function (name, queryDef) {
   var remoteTypeName = queryDef.of;
   var remoteField = queryDef.by;
 
@@ -326,7 +362,7 @@ Schema.prototype._tryAddDefQueryFn = function (name, queryDef) {
   remoteSchema.addIndex(index);
 };
 
-Schema.prototype.addQueryFn = function (name, queryDef) {
+OttomanSchema.prototype.addQueryFn = function (name, queryDef) {
   if (!queryDef.type) {
     queryDef.type = 'view';
   }
@@ -342,11 +378,11 @@ Schema.prototype.addQueryFn = function (name, queryDef) {
   this.queryFns.push(vqfn);
 };
 
-Schema.prototype.addField = function (field) {
+OttomanSchema.prototype.addField = function (field) {
   this.fields.push(field);
 };
 
-Schema.prototype.setIdField = function (path) {
+OttomanSchema.prototype.setIdField = function (path) {
   this.idField = path;
 
   if (this.idField) {
@@ -365,16 +401,7 @@ Schema.prototype.setIdField = function (path) {
   }
 };
 
-function _findField(fields, name) {
-  for (var i = 0; i < fields.length; ++i) {
-    if (fields[i].name === name) {
-      return fields[i];
-    }
-  }
-  return null;
-}
-
-Schema.prototype.fieldVal = function (mdl, name) {
+OttomanSchema.prototype.fieldVal = function (mdl, name) {
   return eval( // jshint -W061
     'mdl.' + name);
 };
@@ -392,9 +419,9 @@ function _fieldSearch(context, fields, name) {
         if (context.isModel(field.type)) {
           // TODO: This may not actually be good to have here...
           return field.type.schema.field(parts.join('.'));
-        } else if (field.type instanceof FieldGroup) {
+        } else if (isFieldGroupType(field.type)) {
           return _fieldSearch(context, field.type.fields, parts.join('.'));
-        } else if (field.type instanceof ModelRef) {
+        } else if (isModelRefType(field.type)) {
           throw new Error('Path cannot refer through reference type.');
         } else {
           throw new Error('Invalid path specified.');
@@ -405,12 +432,12 @@ function _fieldSearch(context, fields, name) {
   return null;
 }
 
-Schema.prototype.field = function (name) {
+OttomanSchema.prototype.field = function (name) {
   return _fieldSearch(this.context, this.fields, name);
 };
 
 function _fieldTypeSearchNamedFields(fields, fieldName) {
-  var field = _findField(fields, fieldName);
+  var field = findField(fields, fieldName);
   if (field) {
     return field.type;
   }
@@ -422,9 +449,9 @@ function _fieldTypeSearchNamed(obj, fieldName, context) {
     return _fieldTypeSearchNamed(obj.schema, fieldName, context);
   }
 
-  if (obj instanceof Schema) {
+  if (isOttomanSchemaType(obj)) {
     return _fieldTypeSearchNamedFields(obj.fields, fieldName);
-  } else if (obj instanceof FieldGroup) {
+  } else if (isFieldGroupType(obj)) {
     return _fieldTypeSearchNamedFields(obj.fields, fieldName);
   } else {
     throw new Error('Unexpected pathing object type.');
@@ -432,7 +459,7 @@ function _fieldTypeSearchNamed(obj, fieldName, context) {
 }
 
 function _fieldTypeSearchWildcard(obj) {
-  if (obj instanceof ListField) {
+  if (isListFieldType(obj)) {
     return obj.type;
   } else {
     throw new Error('Path does not match Schema for wildcard array access.');
@@ -441,7 +468,7 @@ function _fieldTypeSearchWildcard(obj) {
 
 function _decodeValue(context, type, data) {
   if (data instanceof Object && data.$ref) {
-    if (!(type instanceof ModelRef)) {
+    if (!(isModelRefType(type))) {
       throw new Error(
         'Field looks like a reference, but model does not agree!');
     }
@@ -452,8 +479,9 @@ function _decodeValue(context, type, data) {
       throw new Error('Invalid type specified (' + type.name + ')');
     }
 
-    if ((modelType.type && modelType.type === 'Mixed') ||
-      modelType === Schema.Mixed) {
+    // OttomanSchema.Mixed is not defined, either author meant MixedType or it comes from OW-back
+    // @ts-expect-error
+    if ((modelType.type && modelType.type === 'Mixed') || modelType === OttomanSchema.Mixed) {
       // This is a mixed type reference, so we have to get the type from
       // the **reference**, not from the defined model type (Mixed)
       modelType = context.typeByName(data._type);
@@ -478,7 +506,7 @@ function _decodeValue(context, type, data) {
       return data;
     } else if (context.isModel(type)) {
       return type.fromData(data);
-    } else if (type instanceof ListField) {
+    } else if (isListFieldType(type)) {
       if (!Array.isArray(data)) {
         throw new Error(
           'Encountered a list field, but the data does not agree!');
@@ -489,16 +517,14 @@ function _decodeValue(context, type, data) {
         outArr[i] = _decodeValue(context, type.type, data[i]);
       }
       return outArr;
-    } else if (type instanceof FieldGroup) {
+    } else if (isFieldGroupType(type)) {
       if (typeof data !== 'object') {
         throw new Error(
           'Encountered a group field, but the data does not agree!');
       }
 
       var outObj = {};
-      /*eslint-disable no-use-before-define */
       _decodeFields(context, type.fields, outObj, data);
-      /*eslint-enable no-use-before-define */
       return outObj;
     } else if (type instanceof ModelRef) {
       throw new Error(
@@ -516,7 +542,7 @@ function _decodeFields(context, fields, obj, data) {
         continue;
       }
 
-      var field = _findField(fields, i);
+      var field = findField(fields, i);
       if (!field) {
         throw new Error('Could not find schema field for `' + i + '`.');
       }
@@ -529,7 +555,7 @@ function _decodeFields(context, fields, obj, data) {
 function _decodeUserFields(context, fields, obj, data) {
   for (var i in data) {
     if (data.hasOwnProperty(i)) {
-      var field = _findField(fields, i);
+      var field = findField(fields, i);
       if (!field) {
         throw new Error('Could not find schema field for `' + i + '`.');
       }
@@ -547,7 +573,7 @@ function _decodeUserValue(context, type, data) {
   } else if (context.isModel(type)) {
     var TypeCtor = type;
     return new TypeCtor(data);
-  } else if (type instanceof ListField) {
+  } else if (isListFieldType(type)) {
     if (!Array.isArray(data)) {
       throw new Error(
         'Encountered a list field, but the data does not agree!');
@@ -558,7 +584,7 @@ function _decodeUserValue(context, type, data) {
       outArr[i] = _decodeUserValue(context, type.type, data[i]);
     }
     return outArr;
-  } else if (type instanceof FieldGroup) {
+  } else if (isFieldGroupType(type)) {
     if (!(data instanceof Object)) {
       throw new Error(
         'Encountered a group field, but the data does not agree!');
@@ -567,14 +593,15 @@ function _decodeUserValue(context, type, data) {
     var outObj = {};
     _decodeUserFields(context, type.fields, outObj, data);
     return outObj;
-  } else if (type instanceof ModelRef) {
-    var expectedType = context.typeByName(type.name);
+  } else if (isModelRefType(type)) {
 
-    if (type.name === 'Mixed' || expectedType === Schema.Mixed) {
+    var expectedType = context.typeByName(type.name);
+    // OttomanSchema.Mixed is not defined, either author meant MixedType or it comes from OW-back
+    // @ts-expect-error
+    if (type.name === 'Mixed' || expectedType === OttomanSchema.Mixed) {
       // Pass; mixed references are permitted.
     } else if (!(data instanceof expectedType)) {
-      throw new Error('Expected value to be a ModelInstance of type `' +
-        type.name + '`.');
+      throw new Error('Expected value to be a ModelInstance of type `' + type.name + '`.');
     }
     return data;
   } else {
@@ -592,7 +619,7 @@ function _fieldTypeSearch(obj, pathObj, context) {
     if (pathObj.expression.type === 'string_literal') {
       return _fieldTypeSearchNamed(obj, pathObj.expression.value, context);
     } else if (pathObj.expression.type === 'wildcard') {
-      return _fieldTypeSearchWildcard(obj, context);
+      return _fieldTypeSearchWildcard(obj);
     } else {
       throw new Error('Unexpected subscript expression type.');
     }
@@ -601,7 +628,7 @@ function _fieldTypeSearch(obj, pathObj, context) {
   }
 }
 
-Schema.prototype.fieldType = function (path) {
+OttomanSchema.prototype.fieldType = function (path) {
   var obj = this;
 
   var pathArr = ottopath.parse(path);
@@ -614,21 +641,21 @@ Schema.prototype.fieldType = function (path) {
   return obj;
 };
 
-Schema.prototype.applyDataToObject = function (obj, data) {
+OttomanSchema.prototype.applyDataToObject = function (obj, data) {
   _decodeFields(this.context, this.fields, obj, data);
 };
 
-Schema.prototype.applyUserDataToObject = function (obj, data) {
+OttomanSchema.prototype.applyUserDataToObject = function (obj, data) {
   _decodeUserFields(this.context, this.fields, obj, data);
 };
 
-Schema.prototype.applyDefaultsToObject = function (obj) {
+OttomanSchema.prototype.applyDefaultsToObject = function (obj) {
   for (var i = 0; i < this.fields.length; ++i) {
     var field = this.fields[i];
 
-    if (field.type instanceof FieldGroup) {
+    if (isFieldGroupType(field.type)) {
       obj[field.name] = field.type.create();
-    } else if (field.type instanceof ListField) {
+    } else if (isListFieldType(field.type)) {
       obj[field.name] = [];
     } else {
       if (field.default instanceof Function) {
@@ -640,7 +667,7 @@ Schema.prototype.applyDefaultsToObject = function (obj) {
   }
 };
 
-Schema.prototype.applyPropsToObj = function (obj) {
+OttomanSchema.prototype.applyPropsToObj = function (obj) {
   for (var i = 0; i < this.fields.length; ++i) {
     var field = this.fields[i];
 
@@ -652,7 +679,7 @@ Schema.prototype.applyPropsToObj = function (obj) {
   }
 };
 
-Schema.prototype.execPreHandlers = function (event, mdlInst, callback) {
+OttomanSchema.prototype.execPreHandlers = function (event, mdlInst, callback) {
   if (!this.preHandlers[event]) {
     callback(null);
     return;
@@ -660,7 +687,7 @@ Schema.prototype.execPreHandlers = function (event, mdlInst, callback) {
 
   var preHandlers = this.preHandlers[event];
   var i = 0;
-  var doNext = function _doNextPreHandler(err) {
+  var doNext = function _doNextPreHandler(err?) {
     // If any one of the pre-handlers fails, fail the whole thing.
     // This allows people to plug in additional validation.
     if (err) { return callback(err); }
@@ -678,7 +705,7 @@ Schema.prototype.execPreHandlers = function (event, mdlInst, callback) {
   doNext();
 };
 
-Schema.prototype.execPostHandlers = function (event, mdlInst, callback) {
+OttomanSchema.prototype.execPostHandlers = function (event, mdlInst, callback) {
   if (!this.postHandlers[event]) {
     callback(null);
     return;
@@ -704,7 +731,7 @@ Schema.prototype.execPostHandlers = function (event, mdlInst, callback) {
 
 var supportedEvents = ['validate', 'save', 'load', 'remove'];
 
-Schema.prototype.addPreHandler = function (event, callback) {
+OttomanSchema.prototype.addPreHandler = function (event, callback) {
   if (supportedEvents.indexOf(event) === -1) {
     throw new Error('Unsupported event type `' + event + '`.');
   }
@@ -714,7 +741,7 @@ Schema.prototype.addPreHandler = function (event, callback) {
   this.preHandlers[event].push(callback);
 };
 
-Schema.prototype.addPostHandler = function (event, fn) {
+OttomanSchema.prototype.addPostHandler = function (event, fn) {
   if (supportedEvents.indexOf(event) === -1) {
     throw new Error('Unsupported event type `' + event + '`.');
   }
@@ -732,7 +759,7 @@ var _typeByNameLkp = {
   'Date': dateCoreType,
   'Mixed': mixedCoreType
 };
-Schema.coreTypeByName = function (type) {
+OttomanSchema.coreTypeByName = function (type) {
   var coreType = _typeByNameLkp[type];
   if (coreType) {
     return coreType;
@@ -740,23 +767,23 @@ Schema.coreTypeByName = function (type) {
   return null;
 };
 
-Schema.isCoreType = function (type) {
+OttomanSchema.isCoreType = function (type) {
   return type instanceof CoreType;
 };
 
-Schema.StringType = stringCoreType;
-Schema.NumberType = numberCoreType;
-Schema.IntegerType = integerCoreType;
-Schema.BooleanType = boolCoreType;
-Schema.DateType = dateCoreType;
-Schema.MixedType = mixedCoreType;
-Schema.Field = SchemaField;
-Schema.ModelRef = ModelRef;
-Schema.ListField = ListField;
-Schema.FieldGroup = FieldGroup;
-Schema.Index = SchemaIndex;
-Schema.ViewQueryFn = ViewQueryFn;
-Schema.RefDocIndexFn = RefDocIndexFn;
-Schema.RefDocIndex = RefDocIndex;
+OttomanSchema.StringType = stringCoreType;
+OttomanSchema.NumberType = numberCoreType;
+OttomanSchema.IntegerType = integerCoreType;
+OttomanSchema.BooleanType = boolCoreType;
+OttomanSchema.DateType = dateCoreType;
+OttomanSchema.MixedType = mixedCoreType;
+OttomanSchema.Field = SchemaField;
+OttomanSchema.ModelRef = ModelRef;
+OttomanSchema.ListField = ListField;
+OttomanSchema.FieldGroup = FieldGroup;
+OttomanSchema.Index = SchemaIndex;
+OttomanSchema.ViewQueryFn = ViewQueryFn;
+OttomanSchema.RefDocIndexFn = RefDocIndexFn;
+OttomanSchema.RefDocIndex = RefDocIndex;
 
-module.exports = Schema;
+module.exports = OttomanSchema;

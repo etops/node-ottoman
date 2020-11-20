@@ -1,30 +1,11 @@
 'use strict';
 
-var ottoman = require('../lib/ottoman.js');
+var ottoman = require('../lib/ottoman');
 var H = require('./harness');
-var setup = require('./setup.js');
+var ottomanSetup = require('./ottomanSetup');
 
 // Some helpers
-function _saveAllModels(modelArr, callback) {
-  var i = 0;
-  (function __doOne() {
-    if (i >= modelArr.length) {
-      callback(null);
-      return;
-    }
-
-    modelArr[i].save(function (err) {
-      if (err) {
-        callback(err);
-        return;
-      }
-
-      i++;
-      __doOne();
-    })
-  })();
-}
-module.exports.saveAll = _saveAllModels;
+module.exports.saveAll = ottomanSetup.saveAllModels;
 
 module.exports.uniqueId = H.uniqueId;
 
@@ -41,7 +22,7 @@ function setupOttoman(namespace, models, types) {
   o.MockStoreAdapter = o.StoreAdapter.Mock;
   o.Consistency = ottoman.StoreAdapter.SearchConsistency;
 
-  o = setup.init(o);
+  o = ottomanSetup.init(o);
 
   return o;
 }

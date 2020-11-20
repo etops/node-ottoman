@@ -386,6 +386,13 @@ Ottoman connections, created by `H.setupOttoman`, are still running when all tes
 Here is the [issue](https://github.com/couchbaselabs/node-ottoman/issues/186), which links to an open issue in SDK.
 This was solved by adding `--exit` to mocha script in package.json.
 
+## Publishing
+
+The package uses prepublish `npm run build` hook to convert all ts code to js code.
+The package exposes js code to the consumer. All etops packages also expose test folders, this is most probably useless to the consumer.
+
+In the next refactor iterations add types and expose them to typescript consumers.
+
 ## License
 
 Copyright 2013 Couchbase Inc.

@@ -2,10 +2,19 @@
 
 var util = require('util');
 var jsonpath = require('jsonpath');
-var Schema = require('./schema');
-var _ = require('lodash');
+var Schema = require('./ottomanSchema');
+import * as _ from "lodash";
 var lodashDeep = require('lodash-deep');
-_.mixin(lodashDeep);
+var findField = require('./_findField');
+
+type ModelDataType = {
+  key: any,
+  data: any,
+  cas: any
+};
+
+const isModelDataType = (variableToCheck: any): variableToCheck is ModelDataType =>
+  variableToCheck instanceof ModelData;
 
 function ModelData() {
   this.key = null;
@@ -13,9 +22,25 @@ function ModelData() {
   this.cas = null;
 }
 
+type ModelRefDataType = {
+  key: any,
+};
+
+const isModelRefData = (variableToCheck: any): variableToCheck is ModelRefDataType =>
+  variableToCheck instanceof ModelRefData;
+
 function ModelRefData() {
   this.key = null;
 }
+
+type ModelInstanceType = {
+  $: any,
+  id: any,
+  _toCoo: any
+};
+
+const isModelInstanceType = (variableToCheck: any): variableToCheck is ModelInstanceType =>
+  variableToCheck instanceof ModelInstance;
 
 /**
  * Constructs a new model instance and for models with a default constructor,
@@ -26,9 +51,9 @@ function ModelRefData() {
  */
 function ModelInstance() {
   // TODO: Remove this
-  var args = arguments;
+  var args: any = arguments;
 
-  var $ = this.$ = {};
+  var $: any = this.$ = {};
   Object.defineProperty(this, '$', {
     enumerable: false
   });
@@ -39,10 +64,10 @@ function ModelInstance() {
   $.loaded = false;
   $.refKeys = [];
 
-  if (args.length === 1 && args[0] instanceof ModelData) {
+  if (args.length === 1 && isModelDataType(args[0])) {
     $.key = args[0].key;
     ModelInstance.applyData(this, args[0]);
-  } else if (args.length === 1 && args[0] instanceof ModelRefData) {
+  } else if (args.length === 1 && isModelRefData(args[0])) {
     $.key = args[0].key;
   } else {
     $.schema.applyDefaultsToObject(this);
@@ -74,7 +99,7 @@ ModelInstance.fromData = function (data) {
  * @param {ModelInstance} mdlInst
  * @param {Object} data
  */
-ModelInstance.applyData = function (mdlInst, data) {
+ModelInstance.applyData = function (mdlInst, data: ModelDataType) {
   if (!(data instanceof ModelData)) {
     throw new Error('ApplyData must be called with ModelData instance.');
   }
@@ -168,16 +193,8 @@ ModelInstance.prototype.id = function () {
   return myId;
 };
 
-function _findField(fields, name) {
-  for (var i = 0; i < fields.length; ++i) {
-    if (fields[i].name === name) {
-      return fields[i];
-    }
-  }
-  return null;
-}
 
-function _encodeValue(context, type, value, forceTyping, f) {
+function _encodeValue(context, type, value: any, forceTyping, f) {
   if (context.isModel(type)) {
     if (!(value instanceof type)) {
       throw new Error('Expected ' + f.name + ' type to be a `' +
@@ -202,7 +219,7 @@ function _encodeValue(context, type, value, forceTyping, f) {
     for (var j in value) {
       /* istanbul ignore else */
       if (value.hasOwnProperty(j)) {
-        var field = _findField(type.fields, j);
+        var field = findField(type.fields, j);
         if (!field) {
           throw new Error('Cannot find field data for property `' + j + '`.');
         }
@@ -212,14 +229,13 @@ function _encodeValue(context, type, value, forceTyping, f) {
     }
     return outObj;
   } else if (type instanceof Schema.ModelRef) {
-    if (!(value instanceof ModelInstance)) {
+    if (!(isModelInstanceType(value))) {
       throw new Error('Expected ' + f.name + ' type to be a ModelInstance.');
     }
     // Values must match stated type names, unless the reference is to
     // 'Mixed', then any reference will do.
     if (type.name !== value.$.schema.name && (type.name !== 'Mixed')) {
-      throw new Error('Expected type to be `' +
-        type.name + '` (got `' + value.$.schema.name + '`)');
+      throw new Error('Expected type to be `' + type.name + '` (got `' + value.$.schema.name + '`)');
     }
     return {
       '_type': value.$.schema.namePath(true),
@@ -231,31 +247,34 @@ function _encodeValue(context, type, value, forceTyping, f) {
       + (typeof value);
     if (value === null || value === undefined) {
       return value;
-    } else if (value instanceof Date && isFinite(value)) {
-      return value.toISOString();
-    } else if (typeof value === 'string' || value instanceof String) {
-      if (value === '' ) { // This is here for support of legacy code
-        return null
-      } else {
-        try {
-          value = new Date(value);
-          return value.toISOString();
-        } catch (err) {
-          throw new Error(schemaDateTypeErrorString);
-        }
-      }
-    } else if (typeof value === 'number') {
-      throw new Error(schemaDateTypeErrorString);
-    } else {
-      try {
-        value = new Date(value);
-        return value.toISOString();
-      } catch (err) {
-        throw new Error(schemaDateTypeErrorString);
-      }
+    } else { // @ts-expect-error
+      if (value instanceof Date && isFinite(value)) {
+            return value.toISOString();
+          } else if (typeof value === 'string' || value instanceof String) {
+            if (value === '' ) { // This is here for support of legacy code
+              return null
+            } else {
+              try {
+                // @ts-expect-error
+                value = new Date(value);
+                return value.toISOString();
+              } catch (err) {
+                throw new Error(schemaDateTypeErrorString);
+              }
+            }
+          } else if (typeof value === 'number') {
+            throw new Error(schemaDateTypeErrorString);
+          } else {
+            try {
+              value = new Date(value);
+              return value.toISOString();
+            } catch (err) {
+              throw new Error(schemaDateTypeErrorString);
+            }
+          }
     }
   } else if (type === Schema.MixedType) {
-    if (value instanceof ModelInstance) {
+    if (isModelInstanceType(value)) {
       return value._toCoo(type.name, forceTyping);
     } else if (value instanceof Date) {
       return {
@@ -286,7 +305,7 @@ function _encodeValue(context, type, value, forceTyping, f) {
  */
 ModelInstance.prototype._toCoo = function (refType, forceTyping) {
   var $ = this.$;
-  var objOut = {};
+  var objOut: any = {};
 
   if (forceTyping || this.$.schema.name !== refType) {
     objOut._type = this.$.schema.namePath(true);
@@ -345,7 +364,7 @@ ModelInstance.prototype.toJSON = function () {
   // representation; so we choose this because it's familiar to js devs, and
   // extensible; in later versions of ottoman you can add a bucket designator in
   // mongoose's $db key
-  _.deepMapValues(val, function (value, path) {
+  lodashDeep.deepMapValues(val, function (value, path) {
     // References in toCoo normally looks like this:
     // { $ref: 'some-model-id', _type: 'ModelName' }
     // Would prefer .endsWith over this match, but not available until es6.
@@ -424,7 +443,7 @@ function _tryAddRefs(bucket, keys, refKey, callback) {
   function stepBackward() {
     if (i === -1) {
       if (errs.length > 1) {
-        var err = new Error('CRITICAL Error occured while storing refdoc.');
+        var err: any = new Error('CRITICAL Error occured while storing refdoc.');
         err.errors = errs;
         callback(err);
       } else {
@@ -606,6 +625,7 @@ ModelInstance.prototype.load = function () {
 
   function loadSubItem() {
     if (loadItems.length === 0) {
+      // @ts-expect-error
       finalCallback(null);
       return;
     }
@@ -645,6 +665,7 @@ ModelInstance.prototype.load = function () {
       var key = _modelKey(self);
       $.schema.store.get(key, function (err, data, cas) {
         if (err) {
+          // @ts-expect-error
           finalCallback(err);
           return;
         }

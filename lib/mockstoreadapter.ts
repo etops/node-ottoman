@@ -1,7 +1,7 @@
 'use strict';
 
 var util = require('util');
-var StoreAdapter = require('./storeadapter');
+var StoreAdapter = require('./ottomanStoreadapter');
 
 var NOT_FOUND_ERR = new Error('Key was not found.');
 var ALREADY_EXISTS_ERR = new Error('Key already exists.');
@@ -189,6 +189,7 @@ function _testDocFilter(filter, doc) {
     }
     var didContain = false;
     for (var k = 0; k < doc.length; ++k) {
+      // @ts-expect-error
       didContain |= _testDocFilter(filter.$contains, doc[k]);
     }
     if (!didContain) {

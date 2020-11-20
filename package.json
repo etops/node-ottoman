@@ -7,12 +7,15 @@
     "json",
     "document"
   ],
-  "main": "./lib/ottoman",
+  "main": "./build/lib/ottoman.js",
   "license": "Apache2",
   "name": "@etops/ottoman",
   "scripts": {
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.test.js --exit",
-    "lint": "eslint ./lib"
+    "build": "tsc",
+    "prepublish": "npm run build",
+    "test": "NODE_ENV=test TS_NODE_PROJECT='./tsconfig.json' ./node_modules/mocha/bin/_mocha --require ts-node/register --colors './test/*.test.ts' --exit",
+    "tsc:w": "tsc -w",
+    "lint": "eslint ./lib --ext .ts"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
@@ -27,16 +30,23 @@
     "couchbase": "^2.6.11"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.165",
+    "@types/mocha": "^8.0.3",
+    "@types/node": "^14.14.6",
+    "@typescript-eslint/eslint-plugin": "^4.7.0",
+    "@typescript-eslint/parser": "^4.7.0",
     "chai": "^4.2.0",
-    "eslint": "^5.7.0",
+    "eslint": "^7.13.0",
     "ink-docstrap": "git+https://github.com/brett19/docstrap.git#master",
     "istanbul": "~0.4.5",
     "jsdoc": "~3.3.0-alpha9",
-    "mocha": "~5.2.0"
+    "mocha": "~5.2.0",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.5"
   },
   "repository": {
     "type": "git",
     "url": "http://github.com/etops/node-ottoman.git"
   },
-  "version": "1.0.10"
+  "version": "1.0.12"
 }

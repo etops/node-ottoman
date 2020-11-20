@@ -5,9 +5,9 @@ var expect = chai.expect;
 var H = require('./harness');
 var ottoman = H.lib;
 var ModelInstance = require('../lib/modelinstance');
-var CbStoreAdapter = require('../lib/cbstoreadapter');
-var StoreAdapter = require('../lib/storeadapter');
-var Schema = require('../lib/schema');
+var cbStoreAdapter = require('../lib/cbstoreadapter');
+var StoreAdapter = require('../lib/ottomanStoreadapter');
+var Schema = require('../lib/ottomanSchema');
 
 /**
  * Purpose of this test is just to verify that the public API remains stable.
@@ -27,11 +27,11 @@ describe('Public API', function () {
 
   var mdlInstance = new TestMdl({ name: 'foo' });
 
-  var adapterInst = new CbStoreAdapter({ 'bogusBucket': true }, {});
+  var adapterInst = new cbStoreAdapter({ 'bogusBucket': true }, {});
 
   var publicAPI = {
     CbStoreAdapter: {
-      module: CbStoreAdapter,
+      module: cbStoreAdapter,
       instance: adapterInst,
       staticFunctions: [],
       functions: ['count', 'createIndex', 'ensureIndices', 'find',
